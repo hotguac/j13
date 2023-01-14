@@ -14,7 +14,9 @@
 //==============================================================================
 /**
 */
-class J13AudioProcessorEditor  : public juce::AudioProcessorEditor
+class J13AudioProcessorEditor  : public juce::AudioProcessorEditor,
+                                 public juce::Slider::Listener
+
 {
 public:
     J13AudioProcessorEditor (J13AudioProcessor&);
@@ -23,11 +25,14 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void sliderValueChanged (juce::Slider* slider) override;
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     J13AudioProcessor& audioProcessor;
+
+    juce::Slider gainSlider;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (J13AudioProcessorEditor)
 };
