@@ -12,54 +12,55 @@
 
 //==============================================================================
 /**
-*/
-class J13AudioProcessor  : public juce::AudioProcessor
-                            #if JucePlugin_Enable_ARA
-                             , public juce::AudioProcessorARAExtension
-                            #endif
+ */
+class J13AudioProcessor : public juce::AudioProcessor
+#if JucePlugin_Enable_ARA
+    ,
+                          public juce::AudioProcessorARAExtension
+#endif
 {
 public:
-    //==============================================================================
-    J13AudioProcessor();
-    ~J13AudioProcessor() override;
+  //==============================================================================
+  J13AudioProcessor();
+  ~J13AudioProcessor() override;
 
-    //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override {}
-    void releaseResources() override {}
+  //==============================================================================
+  void prepareToPlay(double sampleRate, int samplesPerBlock) override {}
+  void releaseResources() override {}
 
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+  bool isBusesLayoutSupported(const BusesLayout &layouts) const override;
 
-    //==============================================================================
-    juce::AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override { return true; }
+  void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
 
-    //==============================================================================
-    const juce::String getName() const override { return JucePlugin_Name; }
+  //==============================================================================
+  juce::AudioProcessorEditor *createEditor() override;
+  bool hasEditor() const override { return true; }
 
-    bool acceptsMidi() const override { return false; }
-    bool producesMidi() const override { return false; }
-    bool isMidiEffect() const override { return false; }
+  //==============================================================================
+  const juce::String getName() const override { return JucePlugin_Name; }
 
-    double getTailLengthSeconds() const override { return 0.0; }
+  bool acceptsMidi() const override { return false; }
+  bool producesMidi() const override { return false; }
+  bool isMidiEffect() const override { return false; }
 
-    //==============================================================================
-    int getNumPrograms() override { return 1; }
-    int getCurrentProgram() override { return 0; }
-    void setCurrentProgram (int index) override {}
-    const juce::String getProgramName (int index) override { return {}; }
-    void changeProgramName (int index, const juce::String& newName) override {}
+  double getTailLengthSeconds() const override { return 0.0; }
 
-    //==============================================================================
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+  //==============================================================================
+  int getNumPrograms() override { return 1; }
+  int getCurrentProgram() override { return 0; }
+  void setCurrentProgram(int index) override {}
+  const juce::String getProgramName(int index) override { return {}; }
+  void changeProgramName(int index, const juce::String &newName) override {}
 
-    void setGain(float newgain);
-    
+  //==============================================================================
+  void getStateInformation(juce::MemoryBlock &destData) override;
+  void setStateInformation(const void *data, int sizeInBytes) override;
+
+  void setGain(float newgain);
+
 private:
-    AudioParameterFloat* gain;
+  AudioParameterFloat *gain;
 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (J13AudioProcessor)
+  //==============================================================================
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessor)
 };

@@ -8,31 +8,31 @@
 
 #pragma once
 
-#include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include <JuceHeader.h>
 
 //==============================================================================
 /**
-*/
-class J13AudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                 public juce::Slider::Listener
+ */
+class J13AudioProcessorEditor : public juce::AudioProcessorEditor,
+                                public juce::Slider::Listener
 
 {
 public:
-    J13AudioProcessorEditor (J13AudioProcessor&);
-    ~J13AudioProcessorEditor() override;
+  J13AudioProcessorEditor(J13AudioProcessor &);
+  ~J13AudioProcessorEditor() override;
 
-    //==============================================================================
-    void paint (juce::Graphics&) override;
-    void resized() override;
-    void sliderValueChanged (juce::Slider* slider) override;
+  //==============================================================================
+  void paint(juce::Graphics &) override;
+  void resized() override;
+  void sliderValueChanged(juce::Slider *slider) override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    J13AudioProcessor& audioProcessor;
+  // This reference is provided as a quick way for your editor to
+  // access the processor object that created it.
+  J13AudioProcessor &audioProcessor;
 
-    juce::Slider gainSlider;
+  juce::Slider gainSlider;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (J13AudioProcessorEditor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };
