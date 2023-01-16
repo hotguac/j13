@@ -14,10 +14,7 @@
 /**
  */
 class J13AudioProcessor : public juce::AudioProcessor
-#if JucePlugin_Enable_ARA
-    ,
-                          public juce::AudioProcessorARAExtension
-#endif
+
 {
 public:
   //==============================================================================
@@ -56,10 +53,14 @@ public:
   void getStateInformation(juce::MemoryBlock &destData) override;
   void setStateInformation(const void *data, int sizeInBytes) override;
 
-  void setGain(float newgain);
+  // void setGain(float newgain) { *gain = newgain; }
+
+  juce::AudioProcessorValueTreeState apvts;
 
 private:
-  AudioParameterFloat *gain;
+  juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+
+  // AudioParameterFloat *gain;
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessor)
