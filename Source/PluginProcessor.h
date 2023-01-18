@@ -22,7 +22,11 @@ public:
   ~J13AudioProcessor() override;
 
   //==============================================================================
-  void prepareToPlay(double sampleRate, int samplesPerBlock) override {}
+  void prepareToPlay(double sampleRate, int samplesPerBlock) override
+  {
+    // DBG("in prepare");
+  }
+
   void releaseResources() override {}
 
   bool isBusesLayoutSupported(const BusesLayout &layouts) const override;

@@ -47,7 +47,7 @@ void J13AudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   auto totalNumOutputChannels = getTotalNumOutputChannels();
 
   // see https://www.youtube.com/watch?v=xgoSzXgUPpc and theaudioprogrammer.com for how this works
-  auto g = apvts.getRawParameterValue("GAIN");
+  auto g = apvts.getRawParameterValue("INGAIN");
   buffer.applyGain(g->load());
 }
 
@@ -90,7 +90,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 {
   std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", 0.0f, 1.0f, 0.5f));
 
   return {params.begin(), params.end()};
 }

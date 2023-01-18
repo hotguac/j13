@@ -31,9 +31,13 @@ private:
   // access the processor object that created it.
   J13AudioProcessor &audioProcessor;
 
-  juce::Slider gainSlider;
+  juce::Slider inGainSlider;
+  juce::Slider driveSlider;
+  juce::Slider outGainSlider;
 
-  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inGainSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outGainSliderAttachment;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };
