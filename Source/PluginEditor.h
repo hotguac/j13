@@ -9,6 +9,8 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include "jLookAndFeel.h"
+
 #include <JuceHeader.h>
 
 //==============================================================================
@@ -30,6 +32,12 @@ private:
   // This reference is provided as a quick way for your editor to
   // access the processor object that created it.
   J13AudioProcessor &audioProcessor;
+
+  // Look and feel must be before any component that uses it!!
+  jLookAndFeel jLookGain;
+  jLookAndFeel jLookFreq;
+  jLookAndFeel jLookRes;
+  jLookAndFeel jLookBackground;
 
   juce::Slider inGainSlider;
   juce::Slider driveSlider;
