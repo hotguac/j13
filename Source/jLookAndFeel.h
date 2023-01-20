@@ -12,6 +12,8 @@
 
 #include <JuceHeader.h>
 
+#define LABELFONTSIZE 18.0f
+
 class jLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
@@ -32,7 +34,7 @@ public:
                         Slider &slider) override
 
   {
-    float diameter = jmin(width, height) * 0.7f;
+    float diameter = jmin(width, height) * 0.8f;
     float radius = diameter / 2;
     float centreX = x + width / 2;
     float centreY = y + height / 2;
@@ -61,5 +63,13 @@ public:
     // pointer
     g.setColour(lineColour);
     g.fillPath(p);
+  }
+
+  Label *createSliderTextBox(Slider &slider) override
+  {
+    juce::Label *l = LookAndFeel_V2::createSliderTextBox(slider);
+    l->setFont(20.0f);
+
+    return l;
   }
 };

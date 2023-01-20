@@ -5,6 +5,7 @@
               pluginFormats="buildLV2,buildStandalone,buildVST3">
   <MAINGROUP id="aqtZp9" name="j13">
     <GROUP id="{CD11A3E2-04E5-A9E1-84AB-9025C8686FD2}" name="Source">
+      <FILE id="p8xHg7" name="jRotary.h" compile="0" resource="0" file="Source/jRotary.h"/>
       <FILE id="oiZ7cK" name="jLookAndFeel.h" compile="0" resource="0" file="Source/jLookAndFeel.h"/>
       <FILE id="LstSI3" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

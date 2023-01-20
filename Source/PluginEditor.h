@@ -10,6 +10,7 @@
 
 #include "PluginProcessor.h"
 #include "jLookAndFeel.h"
+#include "jRotary.h"
 
 #include <JuceHeader.h>
 
@@ -39,13 +40,21 @@ private:
   jLookAndFeel jLookRes;
   jLookAndFeel jLookBackground;
 
-  juce::Slider inGainSlider;
-  juce::Slider driveSlider;
-  juce::Slider outGainSlider;
+  jRotary inGainSlider{"Input"};
+  jRotary driveSlider{"Drive"};
+  jRotary outGainSlider{"Output"};
+
+  juce::Font labelFont{LABELFONTSIZE};
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inGainSliderAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveSliderAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outGainSliderAttachment;
+
+  juce::Rectangle<int> area;
+  juce::Rectangle<int> gainArea;
+  juce::Rectangle<int> inGainArea;
+  juce::Rectangle<int> outGainArea;
+  juce::Rectangle<int> driveArea;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };
