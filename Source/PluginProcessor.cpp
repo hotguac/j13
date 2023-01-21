@@ -94,5 +94,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
   params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", 0.0f, 1.0f, 0.5f));
   params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", 0.0f, 1.0f, 0.5f));
 
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWRESO", "Low Resonance", 0.0f, 1.0f, 0.5f));
+
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHRESO", "High Resonance", 0.0f, 1.0f, 0.5f));
+
   return {params.begin(), params.end()};
 }

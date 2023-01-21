@@ -44,17 +44,43 @@ private:
   jRotary driveSlider{"Drive"};
   jRotary outGainSlider{"Output"};
 
+  jRotary lowFreqSlider{"Freq"};
+  jRotary lowGainSlider{"Gain"};
+  jRotary lowResoSlider{"Resonance"};
+
+  jRotary highFreqSlider{"Freq"};
+  jRotary highGainSlider{"Gain"};
+  jRotary highResoSlider{"Resonance"};
+
   juce::Font labelFont{LABELFONTSIZE};
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inGainSliderAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveSliderAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outGainSliderAttachment;
 
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowFreqSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowGainSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowResoSliderAttachment;
+
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highFreqSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highGainSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highResoSliderAttachment;
+
   juce::Rectangle<int> area;
   juce::Rectangle<int> gainArea;
   juce::Rectangle<int> inGainArea;
   juce::Rectangle<int> outGainArea;
   juce::Rectangle<int> driveArea;
+
+  juce::Rectangle<int> topBottomDividerArea;
+
+  juce::Rectangle<int> lowFreqArea;
+  juce::Rectangle<int> lowGainArea;
+  juce::Rectangle<int> lowResoArea;
+
+  juce::Rectangle<int> highFreqArea;
+  juce::Rectangle<int> highGainArea;
+  juce::Rectangle<int> highResoArea;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };

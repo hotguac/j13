@@ -25,23 +25,58 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor &p)
   auto b = {400, 300};
   setSize(600, 400);
 
-  // these define the parameters of our slider object
+  // -----------------------------------------------
+  // do the gain staging controls
   inGainSlider.setRange(0.1, 1.2, 0.05);
   inGainSlider.setLookAndFeel(&jLookGain);
   addAndMakeVisible(inGainSlider);
   inGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "INGAIN", inGainSlider);
 
-  // these define the parameters of our slider object
   driveSlider.setRange(0.1, 1.2, 0.05);
   driveSlider.setLookAndFeel(&jLookFreq);
   addAndMakeVisible(driveSlider);
   driveSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DRIVE", driveSlider);
 
-  // these define the parameters of our slider object
   outGainSlider.setRange(0.1, 1.2, 0.05);
   outGainSlider.setLookAndFeel(&jLookRes);
   addAndMakeVisible(outGainSlider);
   outGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "OUTGAIN", outGainSlider);
+
+  // -----------------------------------------------
+  // do the low shelf controls
+
+  lowFreqSlider.setRange(0.1, 1.2, 0.05);
+  lowFreqSlider.setLookAndFeel(&jLookGain);
+  addAndMakeVisible(lowFreqSlider);
+  lowFreqSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWFREQ", lowFreqSlider);
+
+  lowGainSlider.setRange(0.1, 1.2, 0.05);
+  lowGainSlider.setLookAndFeel(&jLookFreq);
+  addAndMakeVisible(lowGainSlider);
+  lowGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWGAIN", lowGainSlider);
+
+  lowResoSlider.setRange(0.1, 1.2, 0.05);
+  lowResoSlider.setLookAndFeel(&jLookRes);
+  addAndMakeVisible(lowResoSlider);
+  lowResoSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWRESO", lowResoSlider);
+
+  // -----------------------------------------------
+  // high shelf controls
+
+  highFreqSlider.setRange(0.1, 1.2, 0.05);
+  highFreqSlider.setLookAndFeel(&jLookGain);
+  addAndMakeVisible(highFreqSlider);
+  highFreqSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHFREQ", highFreqSlider);
+
+  highGainSlider.setRange(0.1, 1.2, 0.05);
+  highGainSlider.setLookAndFeel(&jLookFreq);
+  addAndMakeVisible(highGainSlider);
+  highGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHGAIN", highGainSlider);
+
+  highResoSlider.setRange(0.1, 1.2, 0.05);
+  highResoSlider.setLookAndFeel(&jLookRes);
+  addAndMakeVisible(highResoSlider);
+  highResoSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHRESO", highResoSlider);
 }
 
 J13AudioProcessorEditor::~J13AudioProcessorEditor()
@@ -51,6 +86,15 @@ J13AudioProcessorEditor::~J13AudioProcessorEditor()
   inGainSlider.setLookAndFeel(nullptr);
   driveSlider.setLookAndFeel(nullptr);
   outGainSlider.setLookAndFeel(nullptr);
+
+  lowFreqSlider.setLookAndFeel(nullptr);
+  lowGainSlider.setLookAndFeel(nullptr);
+  lowResoSlider.setLookAndFeel(nullptr);
+
+  highFreqSlider.setLookAndFeel(nullptr);
+  highGainSlider.setLookAndFeel(nullptr);
+  highResoSlider.setLookAndFeel(nullptr);
+
   this->setLookAndFeel(nullptr);
 }
 
@@ -60,18 +104,22 @@ void J13AudioProcessorEditor::paint(juce::Graphics &g)
   // (Our component is opaque, so we must completely fill the background with a
   // solid colour)
   g.fillAll(juce::Colours::darkslategrey);
-  g.setColour(juce::Colours::darkgrey);
 
+  g.setColour(juce::Colours::darkgrey);
   juce::Rectangle<int> x = inGainArea;
   x.expand(0, 8);
-
   g.fillRect(x);
+
+  g.setColour(juce::Colours::black);
+  g.fillRect(topBottomDividerArea);
 }
 
 void J13AudioProcessorEditor::resized()
 {
   // The sequence of commands is significant, they can't be reordered because of
   // the .removeFrom* calls
+
+  //TODO: save the dimension up front to make the calc easier to understand
 
   this->setLookAndFeel(&jLookBackground);
 
@@ -93,4 +141,49 @@ void J13AudioProcessorEditor::resized()
   inGainSlider.showLabel(*this);
   driveSlider.showLabel(*this);
   outGainSlider.showLabel(*this);
+
+  // shrink the bottom part a little for spacing
+  topBottomDividerArea = area.removeFromTop(area.getHeight() * 0.025f);
+  area.removeFromBottom(area.getHeight() * 0.025f);
+
+  // the left side is the low shelf area, right is high shelf
+  Rectangle<int> left;
+  left = area.removeFromLeft(area.getWidth() / 2);
+
+  Rectangle<int> right;
+  right = area;
+
+  // calculate the low shelf areas
+  lowFreqArea = left.removeFromLeft(left.getWidth() / 3);
+  lowGainArea = left.removeFromLeft(left.getWidth() / 2);
+  lowResoArea = left;
+
+  lowFreqArea.removeFromBottom(lowFreqArea.getHeight() * 0.6f);
+  lowGainArea.removeFromTop(lowGainArea.getHeight() * 0.3f);
+  lowGainArea.removeFromBottom(lowGainArea.getHeight() * (3.0f / 7.0f));
+
+  lowResoArea.removeFromTop(lowResoArea.getHeight() * 0.6f);
+
+  // calculate the high shelf areas
+  highFreqArea = right.removeFromLeft(right.getWidth() / 3);
+  highGainArea = right.removeFromLeft(right.getWidth() / 2);
+  highResoArea = right;
+
+  highFreqArea.removeFromBottom(highFreqArea.getHeight() * 0.6f);
+  highGainArea.removeFromTop(highGainArea.getHeight() * 0.3f);
+  highGainArea.removeFromBottom(highGainArea.getHeight() * (3.0f / 7.0f));
+
+  highResoArea.removeFromTop(highResoArea.getHeight() * 0.6f);
+
+  lowFreqSlider.setBounds(lowFreqArea);
+  lowGainSlider.setBounds(lowGainArea);
+  lowResoSlider.setBounds(lowResoArea);
+
+  highFreqSlider.setBounds(highFreqArea);
+  highGainSlider.setBounds(highGainArea);
+  highResoSlider.setBounds(highResoArea);
+
+  lowFreqSlider.showLabel(*this);
+  lowGainSlider.showLabel(*this);
+  lowResoSlider.showLabel(*this);
 }
