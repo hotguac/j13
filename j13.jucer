@@ -5,6 +5,9 @@
               pluginFormats="buildLV2,buildStandalone,buildVST3">
   <MAINGROUP id="aqtZp9" name="j13">
     <GROUP id="{CD11A3E2-04E5-A9E1-84AB-9025C8686FD2}" name="Source">
+      <FILE id="tfNp5V" name="Filters.h" compile="0" resource="0" file="Source/Filters.h"/>
+      <FILE id="XGLYaB" name="GainProcessor.h" compile="0" resource="0" file="Source/GainProcessor.h"/>
+      <FILE id="KEJKil" name="ProcessorBase.h" compile="0" resource="0" file="Source/ProcessorBase.h"/>
       <FILE id="p8xHg7" name="jRotary.h" compile="0" resource="0" file="Source/jRotary.h"/>
       <FILE id="oiZ7cK" name="jLookAndFeel.h" compile="0" resource="0" file="Source/jLookAndFeel.h"/>
       <FILE id="LstSI3" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -36,6 +39,7 @@
         <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>
@@ -49,6 +53,7 @@
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>

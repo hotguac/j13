@@ -69,6 +69,11 @@ private:
   Node::Ptr midiInputNode;
   Node::Ptr midiOutputNode;
 
+  Node::Ptr inputGainNode;
+  Node::Ptr highPassNode;
+  Node::Ptr driveGainNode;
+  Node::Ptr outputGainNode;
+
   void initialiseGraph();
   void updateGraph();
   void connectAudioNodes();

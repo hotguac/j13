@@ -8,6 +8,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "GainProcessor.h"
+#include "Filters.h"
 
 //==============================================================================
 J13AudioProcessor::J13AudioProcessor()
@@ -133,6 +135,9 @@ void J13AudioProcessor::initialiseGraph()
   midiInputNode = mainProcessor->addNode(std::make_unique<AudioGraphIOProcessor>(AudioGraphIOProcessor::midiInputNode));
   midiOutputNode = mainProcessor->addNode(std::make_unique<AudioGraphIOProcessor>(AudioGraphIOProcessor::midiOutputNode));
 
+  inputGainNode = mainProcessor->addNode(std::make_unique<GainProcessor>());
+  highPassNode = mainProcessor->addNode(std::make_unique<HighPassFilterProcessor>());
+
   connectAudioNodes();
   connectMidiNodes();
 }
@@ -144,8 +149,16 @@ void J13AudioProcessor::updateGraph()
 void J13AudioProcessor::connectAudioNodes()
 {
   for (int channel = 0; channel < 2; ++channel)
+  {
     mainProcessor->addConnection({{audioInputNode->nodeID, channel},
+                                  {inputGainNode->nodeID, channel}});
+
+    mainProcessor->addConnection({{inputGainNode->nodeID, channel},
+                                  {highPassNode->nodeID, channel}});
+
+    mainProcessor->addConnection({{highPassNode->nodeID, channel},
                                   {audioOutputNode->nodeID, channel}});
+  }
 }
 
 void J13AudioProcessor::connectMidiNodes()
