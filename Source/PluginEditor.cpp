@@ -186,4 +186,8 @@ void J13AudioProcessorEditor::resized()
   lowFreqSlider.showLabel(*this);
   lowGainSlider.showLabel(*this);
   lowResoSlider.showLabel(*this);
+
+  highFreqSlider.showLabel(*this);
+  highGainSlider.showLabel(*this);
+  highResoSlider.showLabel(*this);
 }
