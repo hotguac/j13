@@ -10,6 +10,9 @@
 
 #include <JuceHeader.h>
 
+using AudioGraphIOProcessor = juce::AudioProcessorGraph::AudioGraphIOProcessor;
+using Node = juce::AudioProcessorGraph::Node;
+
 //==============================================================================
 /**
  */
@@ -22,12 +25,9 @@ public:
   ~J13AudioProcessor() override;
 
   //==============================================================================
-  void prepareToPlay(double sampleRate, int samplesPerBlock) override
-  {
-    // DBG("in prepare");
-  }
+  void prepareToPlay(double sampleRate, int samplesPerBlock) override;
 
-  void releaseResources() override {}
+  void releaseResources() override { mainProcessor->releaseResources(); }
 
   bool isBusesLayoutSupported(const BusesLayout &layouts) const override;
 
@@ -61,6 +61,18 @@ public:
 
 private:
   juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+
+  std::unique_ptr<juce::AudioProcessorGraph> mainProcessor;
+
+  Node::Ptr audioInputNode;
+  Node::Ptr audioOutputNode;
+  Node::Ptr midiInputNode;
+  Node::Ptr midiOutputNode;
+
+  void initialiseGraph();
+  void updateGraph();
+  void connectAudioNodes();
+  void connectMidiNodes();
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessor)

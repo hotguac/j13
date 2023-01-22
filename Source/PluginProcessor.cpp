@@ -15,7 +15,8 @@ J13AudioProcessor::J13AudioProcessor()
           BusesProperties()
               .withInput("Input", juce::AudioChannelSet::stereo(), true)
               .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
-      apvts(*this, nullptr, "Parameters", createParameters())
+      apvts(*this, nullptr, "Parameters", createParameters()),
+      mainProcessor(new juce::AudioProcessorGraph())
 {
 }
 
@@ -46,9 +47,16 @@ void J13AudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   auto totalNumInputChannels = getTotalNumInputChannels();
   auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+  for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
+    buffer.clear(i, 0, buffer.getNumSamples());
+
+  updateGraph();
+
+  mainProcessor->processBlock(buffer, midiMessages);
+
   // see https://www.youtube.com/watch?v=xgoSzXgUPpc and theaudioprogrammer.com for how this works
-  auto g = apvts.getRawParameterValue("INGAIN");
-  buffer.applyGain(g->load());
+  // auto g = apvts.getRawParameterValue("INGAIN");
+  // buffer.applyGain(g->load());
 }
 
 juce::AudioProcessorEditor *J13AudioProcessor::createEditor()
@@ -103,4 +111,45 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
   params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHRESO", "High Resonance", 0.0f, 1.0f, 0.5f));
 
   return {params.begin(), params.end()};
+}
+
+void J13AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+  // DBG("in prepare");
+  mainProcessor->setPlayConfigDetails(getMainBusNumInputChannels(),
+                                      getMainBusNumOutputChannels(),
+                                      sampleRate, samplesPerBlock);
+  mainProcessor->prepareToPlay(sampleRate, samplesPerBlock);
+
+  initialiseGraph();
+}
+
+void J13AudioProcessor::initialiseGraph()
+{
+  mainProcessor->clear();
+
+  audioInputNode = mainProcessor->addNode(std::make_unique<AudioGraphIOProcessor>(AudioGraphIOProcessor::audioInputNode));
+  audioOutputNode = mainProcessor->addNode(std::make_unique<AudioGraphIOProcessor>(AudioGraphIOProcessor::audioOutputNode));
+  midiInputNode = mainProcessor->addNode(std::make_unique<AudioGraphIOProcessor>(AudioGraphIOProcessor::midiInputNode));
+  midiOutputNode = mainProcessor->addNode(std::make_unique<AudioGraphIOProcessor>(AudioGraphIOProcessor::midiOutputNode));
+
+  connectAudioNodes();
+  connectMidiNodes();
+}
+
+void J13AudioProcessor::updateGraph()
+{
+}
+
+void J13AudioProcessor::connectAudioNodes()
+{
+  for (int channel = 0; channel < 2; ++channel)
+    mainProcessor->addConnection({{audioInputNode->nodeID, channel},
+                                  {audioOutputNode->nodeID, channel}});
+}
+
+void J13AudioProcessor::connectMidiNodes()
+{
+  mainProcessor->addConnection({{midiInputNode->nodeID, juce::AudioProcessorGraph::midiChannelIndex},
+                                {midiOutputNode->nodeID, juce::AudioProcessorGraph::midiChannelIndex}});
 }
