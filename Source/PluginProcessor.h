@@ -83,6 +83,18 @@ private:
 
   double sampleRate;
 
+  juce::SmoothedValue<float> smoothInGain{1.0f};
+  juce::SmoothedValue<float> smoothDrive{1.0f};
+  juce::SmoothedValue<float> smoothOutGain{1.0f};
+
+  juce::SmoothedValue<float> smoothLowFreq{100.0f};
+  juce::SmoothedValue<float> smoothLowQ{0.7f};
+  juce::SmoothedValue<float> smoothLowGain{1.0f};
+
+  juce::SmoothedValue<float> smoothHighFreq{4000.0f};
+  juce::SmoothedValue<float> smoothHighQ{0.7f};
+  juce::SmoothedValue<float> smoothHighGain{1.0f};
+
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessor)
 };

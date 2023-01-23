@@ -65,14 +65,10 @@ public:
 
   void updateSettings(int sampleRate, float freq, float q, float gain)
   {
-    lowFreqSmooth.setTargetValue(freq);
-    lowQSmooth.setTargetValue(q);
-    lowGainSmooth.setTargetValue(gain);
-
     *filter.state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate,
-                                                                       lowFreqSmooth.getNextValue(),
-                                                                       lowQSmooth.getNextValue(),
-                                                                       lowGainSmooth.getNextValue());
+                                                                       freq,
+                                                                       q,
+                                                                       gain);
   }
 
   void processBlock(juce::AudioSampleBuffer &buffer, juce::MidiBuffer &) override
@@ -89,9 +85,5 @@ public:
   }
 
 private:
-  juce::SmoothedValue<float, ValueSmoothingTypes::Multiplicative> lowFreqSmooth{30.0f};
-  juce::SmoothedValue<float, ValueSmoothingTypes::Multiplicative> lowQSmooth{0.7f};
-  juce::SmoothedValue<float, ValueSmoothingTypes::Multiplicative> lowGainSmooth{0.0f};
-
   juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
 };

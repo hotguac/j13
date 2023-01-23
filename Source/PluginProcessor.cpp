@@ -113,15 +113,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 
 void J13AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+  J13AudioProcessor::sampleRate = sampleRate;
   // DBG("in prepare");
   mainProcessor->setPlayConfigDetails(getMainBusNumInputChannels(),
                                       getMainBusNumOutputChannels(),
                                       sampleRate, samplesPerBlock);
   mainProcessor->prepareToPlay(sampleRate, samplesPerBlock);
 
-  J13AudioProcessor::sampleRate = sampleRate;
-
   initialiseGraph();
+
+  smoothInGain.reset(sampleRate, 0.5f);
+  smoothDrive.reset(sampleRate, 0.5f);
+  smoothOutGain.reset(sampleRate, 0.5f);
+
+  smoothLowFreq.reset(sampleRate, 0.5f);
+  smoothLowGain.reset(sampleRate, 0.5f);
+  smoothLowQ.reset(sampleRate, 0.5f);
+
+  smoothHighFreq.reset(sampleRate, 0.5f);
+  smoothHighGain.reset(sampleRate, 0.5f);
+  smoothHighQ.reset(sampleRate, 0.5f);
 }
 
 void J13AudioProcessor::initialiseGraph()
@@ -145,17 +156,51 @@ void J13AudioProcessor::updateGraph()
 {
   // see https://www.youtube.com/watch?v=xgoSzXgUPpc and theaudioprogrammer.com for how this works
   auto gi = apvts.getRawParameterValue("INGAIN");
-  //buffer.applyGain(g->load());
-  //inputGainNode.updateGain(g->load());
-  //auto gainProc = inputGainNode.get()->getProcessor();
-  //auto x = (GainProcessor *)inputGainNode.get()->getProcessor();
-  ((GainProcessor *)inputGainNode.get()->getProcessor())->updateGain(gi->load());
+  smoothInGain.setTargetValue(gi->load());
 
-  auto freq = apvts.getRawParameterValue("LOWFREQ");
-  auto q = apvts.getRawParameterValue("LOWQ");
-  auto gain = apvts.getRawParameterValue("LOWGAIN");
+  ((GainProcessor *)inputGainNode.get()->getProcessor())->updateGain(smoothInGain.getNextValue());
+  smoothInGain.skip(getBlockSize() - 1);
 
-  ((LowShelfProcessor *)lowShelfNode.get()->getProcessor())->updateSettings(sampleRate, freq->load(), q->load(), gain->load());
+  auto lowfreq = (apvts.getRawParameterValue("LOWFREQ"))->load();
+  smoothLowFreq.setTargetValue(lowfreq);
+
+  auto lowq = (apvts.getRawParameterValue("LOWQ"))->load();
+  if (lowq < 0.1f)
+  {
+    lowq = 0.1f;
+  }
+  smoothLowQ.setTargetValue(lowq);
+
+  auto lowgain = (apvts.getRawParameterValue("LOWGAIN"))->load();
+  if (lowgain < 0.1f)
+  {
+    lowgain = 0.1f;
+  }
+
+  smoothLowGain.setTargetValue(lowgain);
+
+  ((LowShelfProcessor *)lowShelfNode.get()->getProcessor())->updateSettings(sampleRate, smoothLowFreq.getNextValue(), smoothLowQ.getNextValue(), smoothLowGain.getNextValue());
+
+  smoothLowFreq.skip(getBlockSize() - 1);
+  smoothLowQ.skip(getBlockSize() - 1);
+  smoothLowGain.skip(getBlockSize() - 1);
+
+  /*
+  auto highfreq = apvts.getRawParameterValue("LOWFREQ");
+  smoothHighFreq.setTargetValue(highfreq->load());
+
+  auto highq = apvts.getRawParameterValue("LOWQ");
+  smoothHighQ.setTargetValue(highq->load());
+
+  auto highgain = apvts.getRawParameterValue("LOWGAIN");
+  smoothHighGain.setTargetValue(highgain->load());
+
+  ((HighShelfProcessor *)highShelfNode.get()->getProcessor())->updateSettings(sampleRate, smoothHighFreq.getNextValue(), smoothHighQ.getNextValue(), smoothHighGain.getNextValue());
+
+  smoothHighFreq.skip(getBlockSize() - 1);
+  smoothHighQ.skip(getBlockSize() - 1);
+  smoothHighGain.skip(getBlockSize() - 1);
+  */
 }
 
 void J13AudioProcessor::connectAudioNodes()
