@@ -73,7 +73,7 @@ private:
   Node::Ptr driveGainNode;
   Node::Ptr outputGainNode;
 
-  Node::Ptr highPassNode;
+  Node::Ptr highShelfNode;
   Node::Ptr lowShelfNode;
 
   void initialiseGraph();

@@ -97,16 +97,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
   std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
   params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", -24.0f, 20.0f, 0.0f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -100.0f, 20.0f, 0.0f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", -100.0f, 20.0f, 0.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -24.0f, 20.0f, 0.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", -24.0f, 20.0f, 0.0f));
 
   params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 30.0f, 1000.0f, 1.0f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", 0.0f, 2.0f, 0.5f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.0f, 3.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", 0.01f, 2.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.01f, 3.0f, 0.5f));
 
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 0.0f, 1.0f, 0.5f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", 0.0f, 1.0f, 0.5f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 1000.0f, 12000.0f, 2000.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", 0.01f, 2.0f, 1.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.01f, 3.0f, 0.5f));
 
   return {params.begin(), params.end()};
 }
@@ -145,7 +145,7 @@ void J13AudioProcessor::initialiseGraph()
   midiOutputNode = mainProcessor->addNode(std::make_unique<AudioGraphIOProcessor>(AudioGraphIOProcessor::midiOutputNode));
 
   inputGainNode = mainProcessor->addNode(std::make_unique<GainProcessor>());
-  highPassNode = mainProcessor->addNode(std::make_unique<HighPassProcessor>());
+  highShelfNode = mainProcessor->addNode(std::make_unique<HighShelfProcessor>());
   lowShelfNode = mainProcessor->addNode(std::make_unique<LowShelfProcessor>());
 
   connectAudioNodes();
@@ -161,6 +161,7 @@ void J13AudioProcessor::updateGraph()
   ((GainProcessor *)inputGainNode.get()->getProcessor())->updateGain(smoothInGain.getNextValue());
   smoothInGain.skip(getBlockSize() - 1);
 
+  //-------------------------------------------------------------
   auto lowfreq = (apvts.getRawParameterValue("LOWFREQ"))->load();
   smoothLowFreq.setTargetValue(lowfreq);
 
@@ -185,22 +186,30 @@ void J13AudioProcessor::updateGraph()
   smoothLowQ.skip(getBlockSize() - 1);
   smoothLowGain.skip(getBlockSize() - 1);
 
-  /*
-  auto highfreq = apvts.getRawParameterValue("LOWFREQ");
-  smoothHighFreq.setTargetValue(highfreq->load());
+  //-------------------------------------------------------------
+  auto highfreq = (apvts.getRawParameterValue("HIGHFREQ"))->load();
+  smoothHighFreq.setTargetValue(highfreq);
 
-  auto highq = apvts.getRawParameterValue("LOWQ");
-  smoothHighQ.setTargetValue(highq->load());
+  auto highq = (apvts.getRawParameterValue("HIGHQ"))->load();
+  if (highq < 0.1f)
+  {
+    highq = 0.1f;
+  }
+  smoothHighQ.setTargetValue(highq);
 
-  auto highgain = apvts.getRawParameterValue("LOWGAIN");
-  smoothHighGain.setTargetValue(highgain->load());
+  auto highgain = (apvts.getRawParameterValue("HIGHGAIN"))->load();
+  if (highgain < 0.1f)
+  {
+    highgain = 0.1f;
+  }
+
+  smoothHighGain.setTargetValue(highgain);
 
   ((HighShelfProcessor *)highShelfNode.get()->getProcessor())->updateSettings(sampleRate, smoothHighFreq.getNextValue(), smoothHighQ.getNextValue(), smoothHighGain.getNextValue());
 
   smoothHighFreq.skip(getBlockSize() - 1);
   smoothHighQ.skip(getBlockSize() - 1);
   smoothHighGain.skip(getBlockSize() - 1);
-  */
 }
 
 void J13AudioProcessor::connectAudioNodes()
@@ -214,6 +223,9 @@ void J13AudioProcessor::connectAudioNodes()
                                   {lowShelfNode->nodeID, channel}});
 
     mainProcessor->addConnection({{lowShelfNode->nodeID, channel},
+                                  {highShelfNode->nodeID, channel}});
+
+    mainProcessor->addConnection({{highShelfNode->nodeID, channel},
                                   {audioOutputNode->nodeID, channel}});
   }
 }
