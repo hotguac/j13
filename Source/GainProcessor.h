@@ -43,6 +43,11 @@ public:
   //...
   const juce::String getName() const override { return "Gain"; }
 
+  void updateGain(float newGain)
+  {
+    gain.setGainDecibels(newGain);
+  }
+
 private:
   juce::dsp::Gain<float> gain;
 };

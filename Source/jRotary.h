@@ -20,7 +20,7 @@ public:
   jRotary(juce::String labelText = "default") : lt(labelText)
   {
     setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40, 18);
+    setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 18);
 
     label.setText(lt, juce::NotificationType::dontSendNotification);
     label.setFont(labelFont);

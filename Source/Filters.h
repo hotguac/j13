@@ -14,16 +14,16 @@
 
 #include "ProcessorBase.h"
 
-class HighPassFilterProcessor : public ProcessorBase
+class HighPassProcessor : public ProcessorBase
 {
 public:
-  HighPassFilterProcessor() {}
+  HighPassProcessor() {}
   //...
   const juce::String getName() const override { return "HighPassFilter"; }
 
   void prepareToPlay(double sampleRate, int samplesPerBlock) override
   {
-    *filter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 1000.0f);
+    *filter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 200.0f);
 
     juce::dsp::ProcessSpec spec{sampleRate, static_cast<juce::uint32>(samplesPerBlock), 2};
     filter.prepare(spec);
@@ -42,5 +42,56 @@ public:
   }
 
 private:
+  juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
+};
+
+//===================================================================
+//===================================================================
+class LowShelfProcessor : public ProcessorBase
+{
+public:
+  //===================================================================
+  LowShelfProcessor() {}
+  //...
+  const juce::String getName() const override { return "LowShelfFilter"; }
+
+  void prepareToPlay(double sampleRate, int samplesPerBlock) override
+  {
+    *filter.state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate, 200.0f, 0.7f, 0.0f);
+
+    juce::dsp::ProcessSpec spec{sampleRate, static_cast<juce::uint32>(samplesPerBlock), 2};
+    filter.prepare(spec);
+  }
+
+  void updateSettings(int sampleRate, float freq, float q, float gain)
+  {
+    lowFreqSmooth.setTargetValue(freq);
+    lowQSmooth.setTargetValue(q);
+    lowGainSmooth.setTargetValue(gain);
+
+    *filter.state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate,
+                                                                       lowFreqSmooth.getNextValue(),
+                                                                       lowQSmooth.getNextValue(),
+                                                                       lowGainSmooth.getNextValue());
+  }
+
+  void processBlock(juce::AudioSampleBuffer &buffer, juce::MidiBuffer &) override
+  {
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+
+    filter.process(context);
+  }
+
+  void reset() override
+  {
+    filter.reset();
+  }
+
+private:
+  juce::SmoothedValue<float, ValueSmoothingTypes::Multiplicative> lowFreqSmooth{30.0f};
+  juce::SmoothedValue<float, ValueSmoothingTypes::Multiplicative> lowQSmooth{0.7f};
+  juce::SmoothedValue<float, ValueSmoothingTypes::Multiplicative> lowGainSmooth{0.0f};
+
   juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
 };

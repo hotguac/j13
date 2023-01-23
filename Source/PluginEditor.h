@@ -46,11 +46,11 @@ private:
 
   jRotary lowFreqSlider{"Freq"};
   jRotary lowGainSlider{"Gain"};
-  jRotary lowResoSlider{"Resonance"};
+  jRotary lowQSlider{"Q"};
 
   jRotary highFreqSlider{"Freq"};
   jRotary highGainSlider{"Gain"};
-  jRotary highResoSlider{"Resonance"};
+  jRotary highQSlider{"Q"};
 
   juce::Font labelFont{LABELFONTSIZE};
 
@@ -60,11 +60,11 @@ private:
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowFreqSliderAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowGainSliderAttachment;
-  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowResoSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowQSliderAttachment;
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highFreqSliderAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highGainSliderAttachment;
-  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highResoSliderAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highQSliderAttachment;
 
   juce::Rectangle<int> area;
   juce::Rectangle<int> gainArea;
@@ -76,11 +76,11 @@ private:
 
   juce::Rectangle<int> lowFreqArea;
   juce::Rectangle<int> lowGainArea;
-  juce::Rectangle<int> lowResoArea;
+  juce::Rectangle<int> lowQArea;
 
   juce::Rectangle<int> highFreqArea;
   juce::Rectangle<int> highGainArea;
-  juce::Rectangle<int> highResoArea;
+  juce::Rectangle<int> highQArea;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };

@@ -70,14 +70,18 @@ private:
   Node::Ptr midiOutputNode;
 
   Node::Ptr inputGainNode;
-  Node::Ptr highPassNode;
   Node::Ptr driveGainNode;
   Node::Ptr outputGainNode;
+
+  Node::Ptr highPassNode;
+  Node::Ptr lowShelfNode;
 
   void initialiseGraph();
   void updateGraph();
   void connectAudioNodes();
   void connectMidiNodes();
+
+  double sampleRate;
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessor)

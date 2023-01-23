@@ -55,10 +55,6 @@ void J13AudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   updateGraph();
 
   mainProcessor->processBlock(buffer, midiMessages);
-
-  // see https://www.youtube.com/watch?v=xgoSzXgUPpc and theaudioprogrammer.com for how this works
-  // auto g = apvts.getRawParameterValue("INGAIN");
-  // buffer.applyGain(g->load());
 }
 
 juce::AudioProcessorEditor *J13AudioProcessor::createEditor()
@@ -100,17 +96,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 {
   std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", 0.0f, 1.0f, 0.5f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", 0.0f, 1.0f, 0.5f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", -24.0f, 20.0f, 0.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -100.0f, 20.0f, 0.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", -100.0f, 20.0f, 0.0f));
 
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 0.0f, 1.0f, 0.5f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", 0.0f, 1.0f, 0.5f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWRESO", "Low Resonance", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 30.0f, 1000.0f, 1.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", 0.0f, 2.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.0f, 3.0f, 0.5f));
 
   params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 0.0f, 1.0f, 0.5f));
   params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", 0.0f, 1.0f, 0.5f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHRESO", "High Resonance", 0.0f, 1.0f, 0.5f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.0f, 1.0f, 0.5f));
 
   return {params.begin(), params.end()};
 }
@@ -122,6 +118,8 @@ void J13AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
                                       getMainBusNumOutputChannels(),
                                       sampleRate, samplesPerBlock);
   mainProcessor->prepareToPlay(sampleRate, samplesPerBlock);
+
+  J13AudioProcessor::sampleRate = sampleRate;
 
   initialiseGraph();
 }
@@ -136,7 +134,8 @@ void J13AudioProcessor::initialiseGraph()
   midiOutputNode = mainProcessor->addNode(std::make_unique<AudioGraphIOProcessor>(AudioGraphIOProcessor::midiOutputNode));
 
   inputGainNode = mainProcessor->addNode(std::make_unique<GainProcessor>());
-  highPassNode = mainProcessor->addNode(std::make_unique<HighPassFilterProcessor>());
+  highPassNode = mainProcessor->addNode(std::make_unique<HighPassProcessor>());
+  lowShelfNode = mainProcessor->addNode(std::make_unique<LowShelfProcessor>());
 
   connectAudioNodes();
   connectMidiNodes();
@@ -144,6 +143,19 @@ void J13AudioProcessor::initialiseGraph()
 
 void J13AudioProcessor::updateGraph()
 {
+  // see https://www.youtube.com/watch?v=xgoSzXgUPpc and theaudioprogrammer.com for how this works
+  auto gi = apvts.getRawParameterValue("INGAIN");
+  //buffer.applyGain(g->load());
+  //inputGainNode.updateGain(g->load());
+  //auto gainProc = inputGainNode.get()->getProcessor();
+  //auto x = (GainProcessor *)inputGainNode.get()->getProcessor();
+  ((GainProcessor *)inputGainNode.get()->getProcessor())->updateGain(gi->load());
+
+  auto freq = apvts.getRawParameterValue("LOWFREQ");
+  auto q = apvts.getRawParameterValue("LOWQ");
+  auto gain = apvts.getRawParameterValue("LOWGAIN");
+
+  ((LowShelfProcessor *)lowShelfNode.get()->getProcessor())->updateSettings(sampleRate, freq->load(), q->load(), gain->load());
 }
 
 void J13AudioProcessor::connectAudioNodes()
@@ -154,9 +166,9 @@ void J13AudioProcessor::connectAudioNodes()
                                   {inputGainNode->nodeID, channel}});
 
     mainProcessor->addConnection({{inputGainNode->nodeID, channel},
-                                  {highPassNode->nodeID, channel}});
+                                  {lowShelfNode->nodeID, channel}});
 
-    mainProcessor->addConnection({{highPassNode->nodeID, channel},
+    mainProcessor->addConnection({{lowShelfNode->nodeID, channel},
                                   {audioOutputNode->nodeID, channel}});
   }
 }
