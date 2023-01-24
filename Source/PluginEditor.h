@@ -12,7 +12,7 @@
 #include "jLookAndFeel.h"
 #include "jRotary.h"
 
-#include <JuceHeader.h>
+#include "JuceHeader.h"
 
 //==============================================================================
 /**

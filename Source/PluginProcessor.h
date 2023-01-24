@@ -70,11 +70,14 @@ private:
   Node::Ptr midiOutputNode;
 
   Node::Ptr inputGainNode;
-  Node::Ptr driveGainNode;
+  Node::Ptr driveNode;
   Node::Ptr outputGainNode;
 
   Node::Ptr highShelfNode;
   Node::Ptr lowShelfNode;
+
+  Node::Ptr inSaturationNode;
+  Node::Ptr outSaturationNode;
 
   void initialiseGraph();
   void updateGraph();
