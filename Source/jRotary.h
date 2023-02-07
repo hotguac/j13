@@ -14,40 +14,40 @@
 
 #include <JuceHeader.h>
 
-class jRotary : public juce::Slider
-{
+class jRotary : public juce::Slider {
 public:
-  jRotary(juce::String labelText = "default") : lt(labelText)
-  {
-    setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 18);
+	jRotary(juce::String labelText = "default")
+		: lt(labelText)
+	{
+		setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+		setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 18);
 
-    label.setText(lt, juce::NotificationType::dontSendNotification);
-    label.setFont(labelFont);
-    label.setJustificationType(juce::Justification::centred);
-  };
+		label.setText(lt, juce::NotificationType::dontSendNotification);
+		label.setFont(labelFont);
+		label.setJustificationType(juce::Justification::centred);
+	};
 
-  ~jRotary(){
+	~jRotary() {
 
-  };
+	};
 
-  void setBounds(Rectangle<int> newBounds)
-  {
-    bounds = newBounds;
-    labelBounds = newBounds.removeFromTop(20);
+	void setBounds(Rectangle<int> newBounds)
+	{
+		bounds = newBounds;
+		labelBounds = newBounds.removeFromTop(20);
 
-    juce::Slider::setBounds(newBounds);
-    label.setBounds(labelBounds);
-  }
+		juce::Slider::setBounds(newBounds);
+		label.setBounds(labelBounds);
+	}
 
-  void showLabel(juce::AudioProcessorEditor &p) { p.addAndMakeVisible(label); }
+	void showLabel(juce::AudioProcessorEditor& p) { p.addAndMakeVisible(label); }
 
 private:
-  Rectangle<int> bounds;
-  Rectangle<int> labelBounds;
-  juce::Font labelFont{LABELFONTSIZE};
-  juce::Label label;
-  juce::Label textBox;
+	Rectangle<int> bounds;
+	Rectangle<int> labelBounds;
+	juce::Font labelFont { LABELFONTSIZE };
+	juce::Label label;
+	juce::Label textBox;
 
-  juce::String lt;
+	juce::String lt;
 };
