@@ -69,6 +69,8 @@ public:
   {
     juce::Label *l = LookAndFeel_V2::createSliderTextBox(slider);
     l->setFont(20.0f);
+    l->setBorderSize(juce::BorderSize<int>(0));
+    l->setColour(Label::backgroundColourId, juce::Colour(0, 16, 0));
 
     return l;
   }

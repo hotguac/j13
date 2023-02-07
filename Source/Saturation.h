@@ -10,11 +10,9 @@
 
 #pragma once
 
+#include "ProcessorBase.h"
 #include <JuceHeader.h>
 
-#include "ProcessorBase.h"
-
-//===================================================================
 //===================================================================
 class SaturationProcessor : public ProcessorBase {
 public:
@@ -45,8 +43,15 @@ public:
 
       for (int sampleNum = 0; sampleNum < samplesPerBlock; ++sampleNum) {
         float x = channelData[sampleNum];
-        channelData[sampleNum] =
-            std::tanh((std::tanh(x) + (0.9f * x))) + (0.2f * x);
+        // float Saturate(float input, float depth) { return input *
+        // (1.0-depth+depth*(2.0-abs(input))) } channelData[sampleNum] =
+        // std::tanh((std::tanh(x) + (0.9f * x))) + (0.2f * x);
+
+        if (x >= 0.0f) {
+          channelData[sampleNum] = std::tanh(x) + (x * 0.25);
+        } else {
+          channelData[sampleNum] = (0.8f * std::tanh(x)) + (x * 0.25);
+        }
       }
     }
   }

@@ -26,11 +26,8 @@ public:
 
   //==============================================================================
   void prepareToPlay(double sampleRate, int samplesPerBlock) override;
-
   void releaseResources() override { mainProcessor->releaseResources(); }
-
   bool isBusesLayoutSupported(const BusesLayout &layouts) const override;
-
   void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
 
   //==============================================================================
@@ -71,6 +68,7 @@ private:
 
   Node::Ptr inputGainNode;
   Node::Ptr driveNode;
+  Node::Ptr driveOffsetNode;
   Node::Ptr outputGainNode;
 
   Node::Ptr highShelfNode;

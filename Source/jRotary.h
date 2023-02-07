@@ -40,16 +40,14 @@ public:
     label.setBounds(labelBounds);
   }
 
-  void showLabel(juce::AudioProcessorEditor &p)
-  {
-    p.addAndMakeVisible(label);
-  }
+  void showLabel(juce::AudioProcessorEditor &p) { p.addAndMakeVisible(label); }
 
 private:
   Rectangle<int> bounds;
   Rectangle<int> labelBounds;
   juce::Font labelFont{LABELFONTSIZE};
   juce::Label label;
+  juce::Label textBox;
 
   juce::String lt;
 };

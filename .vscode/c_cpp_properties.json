@@ -3,8 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/JuceLibraryCode/**"
+                "${workspaceFolder}/Source",
+                "${workspaceFolder}/JuceLibraryCode",
+                "${workspaceFolder}/JuceLibraryCode/modules"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

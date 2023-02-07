@@ -1,4 +1,11 @@
 Builds/*
 JuceLibraryCode/*
-.vscode/settings.json
+.vscode/*
 .vscode/c_cpp_properties.json
+/home/jkokosa/juce/projects/j13/.vscode/*
+report.pdf
+.gitignore
+report.tex
+.vscode/c_cpp_properties.json
+report.aux
+report.log

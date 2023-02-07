@@ -29,9 +29,6 @@ bool J13AudioProcessor::isBusesLayoutSupported(
     const BusesLayout &layouts) const
 {
   // This is the place where you check if the layout is supported.
-  // In this template code we only support mono or stereo.
-  // Some plugin hosts, such as certain GarageBand versions, will only
-  // load plugins that support stereo bus layouts.
   if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() &&
       layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
     return false;
@@ -97,8 +94,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 {
   std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", -24.0f, 20.0f, 0.0f));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -24.0f, 20.0f, 0.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>(
+      "INGAIN", "Gain", -24.0f, 24.0f, 0.0f));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>(
+      "DRIVE", "Drive", -24.0f, 24.0f, 0.0f));
   params.push_back(std::make_unique<juce::AudioParameterFloat>(
       "OUTGAIN", "Output", -60.0f, 20.0f, 0.0f));
 
@@ -153,6 +152,7 @@ void J13AudioProcessor::initialiseGraph()
   inputGainNode = mainProcessor->addNode(std::make_unique<GainProcessor>());
   outputGainNode = mainProcessor->addNode(std::make_unique<GainProcessor>());
   driveNode = mainProcessor->addNode(std::make_unique<GainProcessor>());
+  driveOffsetNode = mainProcessor->addNode(std::make_unique<GainProcessor>());
 
   inSaturationNode =
       mainProcessor->addNode(std::make_unique<SaturationProcessor>());
@@ -172,6 +172,7 @@ void J13AudioProcessor::updateGraph()
   // for how this works
   //-------------------------------------------------------------
   auto gi = apvts.getRawParameterValue("INGAIN");
+
   smoothInGain.setTargetValue(gi->load());
 
   ((GainProcessor *)inputGainNode.get()->getProcessor())
@@ -182,8 +183,12 @@ void J13AudioProcessor::updateGraph()
   auto drive = apvts.getRawParameterValue("DRIVE");
   smoothDrive.setTargetValue(drive->load());
 
-  ((GainProcessor *)driveNode.get()->getProcessor())
-      ->updateGain(smoothDrive.getNextValue());
+  auto driveNext = smoothDrive.getNextValue();
+
+  ((GainProcessor *)driveNode.get()->getProcessor())->updateGain(driveNext);
+
+  ((GainProcessor *)driveOffsetNode.get()->getProcessor())
+      ->updateGain(driveNext * -0.8f);
 
   smoothDrive.skip(getBlockSize() - 1);
 
@@ -273,6 +278,9 @@ void J13AudioProcessor::connectAudioNodes()
                                   {outputGainNode->nodeID, channel}});
 
     mainProcessor->addConnection({{outputGainNode->nodeID, channel},
+                                  {driveOffsetNode->nodeID, channel}});
+
+    mainProcessor->addConnection({{driveOffsetNode->nodeID, channel},
                                   {audioOutputNode->nodeID, channel}});
   }
 }
