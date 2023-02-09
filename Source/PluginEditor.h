@@ -14,7 +14,7 @@
 
 #include "JuceHeader.h"
 
-//==============================================================================
+
 class J13AudioProcessorEditor : public juce::AudioProcessorEditor
 
 {
@@ -22,7 +22,6 @@ public:
 	J13AudioProcessorEditor(J13AudioProcessor&);
 	~J13AudioProcessorEditor() override;
 
-	//==============================================================================
 	void paint(juce::Graphics&) override;
 	void resized() override;
 

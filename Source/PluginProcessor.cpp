@@ -1,10 +1,13 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin processor.
-    
+    PluginProcessor.cpp
+    Created: Jan 2023
+    Author:  jkokosa
+
   ==============================================================================
 */
+
 
 #include "PluginProcessor.h"
 #include "Filters.h"
@@ -13,7 +16,6 @@
 #include "Saturation.h"
 
 
-//==============================================================================
 J13AudioProcessor::J13AudioProcessor()
 	: AudioProcessor(BusesProperties()
 						 .withInput("Input", juce::AudioChannelSet::stereo(), true)
@@ -78,8 +80,6 @@ void J13AudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 			apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new J13AudioProcessor(); }
 
 juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createParameters()

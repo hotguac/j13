@@ -17,7 +17,7 @@
 class HighPassProcessor : public ProcessorBase {
 public:
 	HighPassProcessor() { }
-	//...
+
 	const juce::String getName() const override { return "HighPassFilter"; }
 
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override
@@ -41,13 +41,12 @@ private:
 	juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
 };
 
-//===================================================================
+
 //===================================================================
 class LowShelfProcessor : public ProcessorBase {
 public:
-	//===================================================================
 	LowShelfProcessor() { }
-	//...
+
 	const juce::String getName() const override { return "LowShelfFilter"; }
 
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override
@@ -78,12 +77,10 @@ private:
 };
 
 //===================================================================
-//===================================================================
 class HighShelfProcessor : public ProcessorBase {
 public:
-	//===================================================================
 	HighShelfProcessor() { }
-	//...
+
 	const juce::String getName() const override { return "HighShelfFilter"; }
 
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override

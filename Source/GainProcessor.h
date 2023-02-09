@@ -10,9 +10,8 @@
 
 #pragma once
 
-#include <JuceHeader.h>
-
 #include "ProcessorBase.h"
+#include <JuceHeader.h>
 
 class GainProcessor : public ProcessorBase {
 public:
@@ -32,10 +31,7 @@ public:
 	}
 
 	void reset() override { gain.reset(); }
-
-	//...
 	const juce::String getName() const override { return "Gain"; }
-
 	void updateGain(float newGain) { gain.setGainDecibels(newGain); }
 
 private:

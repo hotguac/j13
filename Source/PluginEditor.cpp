@@ -9,7 +9,6 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 
-//==============================================================================
 J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	: AudioProcessorEditor(&p)
 	, audioProcessor(p)
@@ -108,7 +107,6 @@ J13AudioProcessorEditor::~J13AudioProcessorEditor()
 	this->setLookAndFeel(nullptr);
 }
 
-//==============================================================================
 void J13AudioProcessorEditor::paint(juce::Graphics& g)
 {
 	// (Our component is opaque, so we must completely fill the background with a

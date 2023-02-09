@@ -13,12 +13,10 @@
 #include "ProcessorBase.h"
 #include <JuceHeader.h>
 
-//===================================================================
 class SaturationProcessor : public ProcessorBase {
 public:
-	//===================================================================
 	SaturationProcessor() { }
-	//...
+
 	const juce::String getName() const override { return "SaturationFilter"; }
 
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override
