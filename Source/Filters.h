@@ -109,3 +109,37 @@ public:
 private:
 	juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
 };
+
+//===================================================================
+class PeakProcessor : public ProcessorBase {
+public:
+	PeakProcessor() { }
+
+	const juce::String getName() const override { return "PeakFilter"; }
+
+	void prepareToPlay(double sampleRate, int samplesPerBlock) override
+	{
+		*filter.state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, 2000.0f, 0.7f, 1.0f);
+
+		juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32>(samplesPerBlock), 2 };
+		filter.prepare(spec);
+	}
+
+	void updateSettings(int sampleRate, float freq, float q, float gain)
+	{
+		*filter.state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, freq, q, gain);
+	}
+
+	void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+	{
+		juce::dsp::AudioBlock<float> block(buffer);
+		juce::dsp::ProcessContextReplacing<float> context(block);
+
+		filter.process(context);
+	}
+
+	void reset() override { filter.reset(); }
+
+private:
+	juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
+};

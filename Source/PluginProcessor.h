@@ -51,7 +51,7 @@ public:
 
 private:
 	juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
-	void updateGain(juce::StringRef ParameterID, juce::SmoothedValue<float> smoother, Node::Ptr node);
+	void updateGain(juce::StringRef ParameterID, juce::SmoothedValue<float>* smoother, Node::Ptr node);
 
 	std::unique_ptr<juce::AudioProcessorGraph> mainProcessor;
 

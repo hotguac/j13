@@ -140,19 +140,23 @@ void J13AudioProcessor::initialiseGraph()
 	inSaturationNode = mainProcessor->addNode(std::make_unique<SaturationProcessor>());
 	outSaturationNode = mainProcessor->addNode(std::make_unique<SaturationProcessor>());
 
-	highShelfNode = mainProcessor->addNode(std::make_unique<HighShelfProcessor>());
-	lowShelfNode = mainProcessor->addNode(std::make_unique<LowShelfProcessor>());
+	// highShelfNode = mainProcessor->addNode(std::make_unique<HighShelfProcessor>());
+	// lowShelfNode = mainProcessor->addNode(std::make_unique<LowShelfProcessor>());
+
+	highShelfNode = mainProcessor->addNode(std::make_unique<PeakProcessor>());
+	lowShelfNode = mainProcessor->addNode(std::make_unique<PeakProcessor>());
 
 	connectAudioNodes();
 	connectMidiNodes();
 }
 
-void J13AudioProcessor::updateGain(juce::StringRef ParameterID, juce::SmoothedValue<float> smoother, Node::Ptr node)
+void J13AudioProcessor::updateGain(juce::StringRef ParameterID, juce::SmoothedValue<float>* smoother, Node::Ptr node)
 {
 	auto new_value = (apvts.getRawParameterValue(ParameterID))->load();
-	smoother.setTargetValue(new_value);
 
-	((GainProcessor*)node.get()->getProcessor())->updateGain(smoother.getNextValue());
+	smoother->setTargetValue(new_value);
+
+	((GainProcessor*)node.get()->getProcessor())->updateGain(smoother->getNextValue());
 }
 
 void J13AudioProcessor::updateGraph()
@@ -160,22 +164,19 @@ void J13AudioProcessor::updateGraph()
 	// see https://www.youtube.com/watch?v=xgoSzXgUPpc and theaudioprogrammer.com
 	// for how this works
 	//-------------------------------------------------------------
-	// auto gi = apvts.getRawParameterValue("INGAIN");
-	// smoothInGain.setTargetValue(gi->load());
-
-	// ((GainProcessor
-	// *)inputGainNode.get()->getProcessor())->updateGain(smoothInGain.getNextValue());
 
 	auto skipSize = getBlockSize() - 1;
 
-	updateGain("INGAIN", smoothInGain, inputGainNode);
+	auto new_value = (apvts.getRawParameterValue("INGAIN"))->load();
+	updateGain("INGAIN", &smoothInGain, inputGainNode);
 	smoothInGain.skip(skipSize);
 
-	updateGain("DRIVE", smoothDrive, driveNode);
+	new_value = (apvts.getRawParameterValue("DRIVE"))->load();
+	updateGain("DRIVE", &smoothDrive, driveNode);
 	((GainProcessor*)driveOffsetNode.get()->getProcessor())->updateGain(smoothDrive.getCurrentValue());
 	smoothDrive.skip(skipSize);
 
-	updateGain("OUTGAIN", smoothOutGain, outputGainNode);
+	updateGain("OUTGAIN", &smoothOutGain, outputGainNode);
 	smoothOutGain.skip(skipSize);
 
 	//-------------------------------------------------------------
