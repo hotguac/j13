@@ -106,6 +106,15 @@ public:
 
 	void reset() override { filter.reset(); }
 
+	juce::dsp::IIR::Coefficients<float>* getCoeffs()
+	{
+		//
+		auto x = filter.state.get();
+
+		return x;
+		//
+	}
+
 private:
 	juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
 };

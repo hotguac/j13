@@ -22,7 +22,7 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
-	setSize(600, 400);
+	setSize(600, 1000); // 400
 
 	// -----------------------------------------------
 	// do the gain staging controls
@@ -86,6 +86,8 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	addAndMakeVisible(highQSlider);
 	highQSliderAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHQ", highQSlider);
+
+	startTimer(100000);
 }
 
 J13AudioProcessorEditor::~J13AudioProcessorEditor()
@@ -120,9 +122,23 @@ void J13AudioProcessorEditor::paint(juce::Graphics& g)
 
 	g.setColour(juce::Colours::black);
 	g.fillRect(topBottomDividerArea);
+
+	plotter->clearCoeffs();
+
+	//std::cout << "in paint" << std::endl;
+	auto cx = audioProcessor.getCoeffs(0);
+
+	//std::cout << "getCoeffs 0=" << cx->coefficients[0] << std::endl;
+	//std::cout << "getCoeffs 1=" << cx->coefficients[1] << std::endl << std::endl;
+
+	plotter->addCoeffs(cx);
+	plotter->renderGraph(g);
+
+	repaint(plotArea);
 }
 
 void J13AudioProcessorEditor::resized()
+
 {
 	// The sequence of commands is significant, they can't be reordered because of
 	// the .removeFrom* calls
@@ -134,6 +150,10 @@ void J13AudioProcessorEditor::resized()
 	// This is generally where you'll want to lay out the positions of any
 	// subcomponents in your editor..
 	area = getLocalBounds();
+
+	plotArea = area.removeFromTop(400);
+	plotter = std::make_unique<Plotter>(plotArea);
+
 	gainArea = area.removeFromTop(area.getHeight() / 3);
 	inGainArea = gainArea.removeFromLeft(gainArea.getWidth() / 4);
 	outGainArea = gainArea.removeFromRight(inGainArea.getWidth());
@@ -198,4 +218,11 @@ void J13AudioProcessorEditor::resized()
 	highFreqSlider.showLabel(*this);
 	highGainSlider.showLabel(*this);
 	highQSlider.showLabel(*this);
+}
+
+
+void J13AudioProcessorEditor::timerCallback()
+{
+	//TODO: add check to see if values change before calling repaint()
+	repaint(plotArea);
 }

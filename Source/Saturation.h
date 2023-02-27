@@ -46,11 +46,26 @@ public:
 				// (1.0-depth+depth*(2.0-abs(input))) } channelData[sampleNum] =
 				// std::tanh((std::tanh(x) + (0.9f * x))) + (0.2f * x);
 
+
+				/*
+                a=0.2*tanh(x)
+                b=0.3*sin(x)
+                c=1+M where 0.7<=M<=2
+                y=tanh((2a+2b+xm)/c)*0.5 + ((a+b+0.5*xM)/c)
+                
+                */
+				auto a = 0.2f * tanh(x);
+				auto b = 0.3f * sin(x);
+				auto M = 2;
+
+				channelData[sampleNum] = 0.5f * tanh(2 * (a + b) / M) + (a + b + x) / M;
+				/*
 				if (x >= 0.0f) {
 					channelData[sampleNum] = std::tanh(x) + (x * 0.25);
 				} else {
 					channelData[sampleNum] = (0.8f * std::tanh(x)) + (x * 0.25);
 				}
+*/
 			}
 		}
 	}

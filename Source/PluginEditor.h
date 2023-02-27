@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "Plotter.h"
 #include "PluginProcessor.h"
 #include "jLookAndFeel.h"
 #include "jRotary.h"
@@ -15,7 +16,8 @@
 #include "JuceHeader.h"
 
 
-class J13AudioProcessorEditor : public juce::AudioProcessorEditor
+class J13AudioProcessorEditor : public juce::AudioProcessorEditor,
+								public juce::Timer
 
 {
 public:
@@ -62,7 +64,10 @@ private:
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highGainSliderAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highQSliderAttachment;
 
+	std::unique_ptr<Plotter> plotter;
+
 	juce::Rectangle<int> area;
+	juce::Rectangle<int> plotArea;
 	juce::Rectangle<int> gainArea;
 	juce::Rectangle<int> inGainArea;
 	juce::Rectangle<int> outGainArea;
@@ -77,6 +82,8 @@ private:
 	juce::Rectangle<int> highFreqArea;
 	juce::Rectangle<int> highGainArea;
 	juce::Rectangle<int> highQArea;
+
+	void timerCallback() override;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };

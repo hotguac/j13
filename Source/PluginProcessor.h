@@ -49,6 +49,8 @@ public:
 
 	juce::AudioProcessorValueTreeState apvts;
 
+	juce::dsp::IIR::Coefficients<float>* getCoeffs(int filterNum);
+
 private:
 	juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
 	void updateGain(juce::StringRef ParameterID, juce::SmoothedValue<float>* smoother, Node::Ptr node);
