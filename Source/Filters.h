@@ -37,6 +37,8 @@ public:
 
 	void reset() override { filter.reset(); }
 
+	juce::dsp::IIR::Coefficients<float>* getCoeffs() { return filter.state.get(); }
+
 private:
 	juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
 };
@@ -72,6 +74,9 @@ public:
 
 	void reset() override { filter.reset(); }
 
+	juce::dsp::IIR::Coefficients<float>* getCoeffs() { return filter.state.get(); }
+
+
 private:
 	juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
 };
@@ -106,14 +111,7 @@ public:
 
 	void reset() override { filter.reset(); }
 
-	juce::dsp::IIR::Coefficients<float>* getCoeffs()
-	{
-		//
-		auto x = filter.state.get();
-
-		return x;
-		//
-	}
+	juce::dsp::IIR::Coefficients<float>* getCoeffs() { return filter.state.get(); }
 
 private:
 	juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;

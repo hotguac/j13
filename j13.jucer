@@ -5,6 +5,7 @@
               pluginFormats="buildLV2,buildStandalone,buildVST3">
   <MAINGROUP id="aqtZp9" name="j13">
     <GROUP id="{CD11A3E2-04E5-A9E1-84AB-9025C8686FD2}" name="Source">
+      <FILE id="j8gdCB" name="FreqPlotter.h" compile="0" resource="0" file="Source/FreqPlotter.h"/>
       <FILE id="rx1t9w" name="Plotter.h" compile="0" resource="0" file="Source/Plotter.h"/>
       <FILE id="tfNp5V" name="Filters.h" compile="0" resource="0" file="Source/Filters.h"/>
       <FILE id="XGLYaB" name="GainProcessor.h" compile="0" resource="0" file="Source/GainProcessor.h"/>

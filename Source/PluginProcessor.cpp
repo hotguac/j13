@@ -233,12 +233,13 @@ juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)
 	//
 	//
 	if (filterNum == 0) {
-		auto x = ((HighShelfProcessor*)highShelfNode.get()->getProcessor())->getCoeffs();
-
-		return x;
+		return ((HighShelfProcessor*)highShelfNode.get()->getProcessor())->getCoeffs();
+	}
+	if (filterNum == 1) {
+		return ((HighShelfProcessor*)lowShelfNode.get()->getProcessor())->getCoeffs();
 	}
 
-	return ((HighShelfProcessor*)highShelfNode.get()->getProcessor())->getCoeffs();
+	return nullptr;
 }
 
 void J13AudioProcessor::connectAudioNodes()

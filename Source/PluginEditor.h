@@ -8,7 +8,8 @@
 
 #pragma once
 
-#include "Plotter.h"
+#include "FreqPlotter.h"
+// #include "Plotter.h"
 #include "PluginProcessor.h"
 #include "jLookAndFeel.h"
 #include "jRotary.h"
@@ -17,7 +18,8 @@
 
 
 class J13AudioProcessorEditor : public juce::AudioProcessorEditor,
-								public juce::Timer
+								public juce::Timer,
+								juce::Slider::Listener
 
 {
 public:
@@ -26,6 +28,8 @@ public:
 
 	void paint(juce::Graphics&) override;
 	void resized() override;
+
+	void sliderValueChanged(juce::Slider* slider) override;
 
 private:
 	// This reference is provided as a quick way for your editor to
@@ -64,7 +68,8 @@ private:
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highGainSliderAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highQSliderAttachment;
 
-	std::unique_ptr<Plotter> plotter;
+	// std::unique_ptr<Plotter> plotter;
+	FreqPlotter plotter;
 
 	juce::Rectangle<int> area;
 	juce::Rectangle<int> plotArea;

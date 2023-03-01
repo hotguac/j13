@@ -12,6 +12,7 @@
 J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	: AudioProcessorEditor(&p)
 	, audioProcessor(p)
+
 {
 	// Set up the look and feel
 	jLookFreq.fillColour = juce::Colours::darkblue;
@@ -53,18 +54,21 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	addAndMakeVisible(lowFreqSlider);
 	lowFreqSliderAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWFREQ", lowFreqSlider);
+	lowFreqSlider.addListener(this);
 
 	lowGainSlider.setRange(0.1, 1.2, 0.05);
 	lowGainSlider.setLookAndFeel(&jLookFreq);
 	addAndMakeVisible(lowGainSlider);
 	lowGainSliderAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWGAIN", lowGainSlider);
+	lowGainSlider.addListener(this);
 
 	lowQSlider.setRange(0.1, 1.2, 0.05);
 	lowQSlider.setLookAndFeel(&jLookRes);
 	addAndMakeVisible(lowQSlider);
 	lowQSliderAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWQ", lowQSlider);
+	lowQSlider.addListener(this);
 
 	// -----------------------------------------------
 	// high shelf controls
@@ -74,20 +78,23 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	addAndMakeVisible(highFreqSlider);
 	highFreqSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHFREQ", highFreqSlider);
+	highFreqSlider.addListener(this);
 
 	highGainSlider.setRange(0.1, 1.2, 0.05);
 	highGainSlider.setLookAndFeel(&jLookFreq);
 	addAndMakeVisible(highGainSlider);
 	highGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHGAIN", highGainSlider);
+	highGainSlider.addListener(this);
 
 	highQSlider.setRange(0.1, 1.2, 0.05);
 	highQSlider.setLookAndFeel(&jLookRes);
 	addAndMakeVisible(highQSlider);
 	highQSliderAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHQ", highQSlider);
+	highQSlider.addListener(this);
 
-	startTimer(100000);
+	startTimer(100);
 }
 
 J13AudioProcessorEditor::~J13AudioProcessorEditor()
@@ -123,18 +130,8 @@ void J13AudioProcessorEditor::paint(juce::Graphics& g)
 	g.setColour(juce::Colours::black);
 	g.fillRect(topBottomDividerArea);
 
-	plotter->clearCoeffs();
-
-	//std::cout << "in paint" << std::endl;
-	auto cx = audioProcessor.getCoeffs(0);
-
-	//std::cout << "getCoeffs 0=" << cx->coefficients[0] << std::endl;
-	//std::cout << "getCoeffs 1=" << cx->coefficients[1] << std::endl << std::endl;
-
-	plotter->addCoeffs(cx);
-	plotter->renderGraph(g);
-
-	repaint(plotArea);
+	//repaint(plotArea);
+	plotter.renderGraph(g);
 }
 
 void J13AudioProcessorEditor::resized()
@@ -152,7 +149,7 @@ void J13AudioProcessorEditor::resized()
 	area = getLocalBounds();
 
 	plotArea = area.removeFromTop(400);
-	plotter = std::make_unique<Plotter>(plotArea);
+	plotter.setBounds(plotArea);
 
 	gainArea = area.removeFromTop(area.getHeight() / 3);
 	inGainArea = gainArea.removeFromLeft(gainArea.getWidth() / 4);
@@ -218,11 +215,26 @@ void J13AudioProcessorEditor::resized()
 	highFreqSlider.showLabel(*this);
 	highGainSlider.showLabel(*this);
 	highQSlider.showLabel(*this);
+
+	// repaint(plotArea);
 }
 
 
 void J13AudioProcessorEditor::timerCallback()
 {
-	//TODO: add check to see if values change before calling repaint()
+	stopTimer();
+
+	plotter.clearCoeffs();
+	plotter.addCoeffs(audioProcessor.getCoeffs(0));
+	plotter.addCoeffs(audioProcessor.getCoeffs(1));
 	repaint(plotArea);
+
+	if (!isTimerRunning())
+		startTimer(100);
+}
+
+void J13AudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
+{
+	if (!isTimerRunning())
+		startTimer(40);
 }
