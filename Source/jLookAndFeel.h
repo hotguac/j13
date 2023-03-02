@@ -35,8 +35,6 @@ public:
 		float rw = radius * 2.0f;
 		float angle = rotaryStartAngle + (sliderPos * (rotaryEndAngle - rotaryStartAngle));
 
-		// std::cout << rotaryStartAngle << " " << rotaryEndAngle << std::endl;
-
 		// fill
 		g.setColour(fillColour);
 		g.fillEllipse(rx, ry, rw, rw);

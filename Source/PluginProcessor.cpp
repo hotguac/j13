@@ -227,16 +227,16 @@ void J13AudioProcessor::updateGraph()
 
 juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)
 {
-	//
-	//
-	if (filterNum == 0) {
-		return ((HighShelfProcessor*)highShelfNode.get()->getProcessor())->getCoeffs();
-	}
-	if (filterNum == 1) {
-		return ((HighShelfProcessor*)lowShelfNode.get()->getProcessor())->getCoeffs();
+	auto node = lowShelfNode.get();
+
+	if (node == nullptr) {
+		return nullptr;
 	}
 
-	return nullptr;
+	auto proc = node->getProcessor();
+	auto coeffs = ((LowShelfProcessor*)proc)->getCoeffs();
+
+	return coeffs;
 }
 
 void J13AudioProcessor::connectAudioNodes()

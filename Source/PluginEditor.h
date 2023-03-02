@@ -17,8 +17,8 @@
 
 
 class J13AudioProcessorEditor : public juce::AudioProcessorEditor,
-								public juce::Timer,
-								juce::Slider::Listener
+								public juce::Timer //,
+												   // juce::Slider::Listener
 
 {
 public:
@@ -28,7 +28,7 @@ public:
 	void paint(juce::Graphics&) override;
 	void resized() override;
 
-	void sliderValueChanged(juce::Slider* slider) override;
+	// void sliderValueChanged(juce::Slider* slider) override;
 
 private:
 	// This reference is provided as a quick way for your editor to

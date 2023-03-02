@@ -33,9 +33,7 @@ public:
 
 	void resized() override
 	{
-		// This method is where you should set the bounds of any child
-		// components that your component contains..
-
+		// Set the bounds of any child components that your component contains..
 		juce::Rectangle<float> area(getWidth(), getHeight());
 
 		setArea(area);
@@ -53,12 +51,16 @@ public:
 		drawBackground(gg);
 	}
 
-
 	void setSampleRate(float rate) { sampleRate = rate; }
 
 	void addCoeffs(juce::dsp::IIR::Coefficients<float>::Ptr coeff) { curveCoeffs.add(coeff); }
 
-	void clearCoeffs() { curveCoeffs.clear(); }
+	void clearCoeffs()
+	{
+		if (curveCoeffs.size() > 0) {
+			curveCoeffs.clear();
+		}
+	}
 
 	void renderGraph(juce::Graphics& g)
 	{
@@ -330,8 +332,8 @@ private:
 		g.setColour(plotColour);
 		auto z = curveCoeffs[curveNum].get();
 
-		auto minX = frequencyToGraphX(minFrequency); // , 0.0f).getX();
-		auto maxX = frequencyToGraphX(maxFrequency); // getGraphPoint(maxFrequency, 0.0f).getX();
+		auto minX = frequencyToGraphX(minFrequency);
+		auto maxX = frequencyToGraphX(maxFrequency);
 
 		for (auto x = minX; x <= maxX; ++x) {
 			auto freq = getGraphFreq(x);
