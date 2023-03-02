@@ -9,7 +9,6 @@
 #pragma once
 
 #include "FreqPlotter.h"
-// #include "Plotter.h"
 #include "PluginProcessor.h"
 #include "jLookAndFeel.h"
 #include "jRotary.h"
@@ -68,7 +67,6 @@ private:
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highGainSliderAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highQSliderAttachment;
 
-	// std::unique_ptr<Plotter> plotter;
 	FreqPlotter plotter;
 
 	juce::Rectangle<int> area;

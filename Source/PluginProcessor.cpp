@@ -104,7 +104,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 void J13AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	J13AudioProcessor::sampleRate = sampleRate;
-	// DBG("in prepare");
+
 	mainProcessor->setPlayConfigDetails(getMainBusNumInputChannels(), getMainBusNumOutputChannels(), sampleRate, samplesPerBlock);
 	mainProcessor->prepareToPlay(sampleRate, samplesPerBlock);
 
@@ -140,11 +140,8 @@ void J13AudioProcessor::initialiseGraph()
 	inSaturationNode = mainProcessor->addNode(std::make_unique<SaturationProcessor>());
 	outSaturationNode = mainProcessor->addNode(std::make_unique<SaturationProcessor>());
 
-	// highShelfNode = mainProcessor->addNode(std::make_unique<HighShelfProcessor>());
-	// lowShelfNode = mainProcessor->addNode(std::make_unique<LowShelfProcessor>());
-
-	highShelfNode = mainProcessor->addNode(std::make_unique<PeakProcessor>());
-	lowShelfNode = mainProcessor->addNode(std::make_unique<PeakProcessor>());
+	highShelfNode = mainProcessor->addNode(std::make_unique<HighShelfProcessor>());
+	lowShelfNode = mainProcessor->addNode(std::make_unique<LowShelfProcessor>());
 
 	connectAudioNodes();
 	connectMidiNodes();

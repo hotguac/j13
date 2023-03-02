@@ -27,7 +27,6 @@ public:
 
 	void paint(juce::Graphics& g) override
 	{
-		//std::cout << "in FreqPlotter paint" << std::endl;
 		renderGraph(g);
 		return;
 	}
@@ -78,8 +77,6 @@ public:
 	}
 
 private:
-	//-------------- Copied from plotter.h
-
 	juce::Image backgroundImage;
 	juce::Image canvas;
 
@@ -414,11 +411,7 @@ private:
 
 	void setFont(juce::Font newFont) { font = newFont; }
 
-	void setMagnitudeMax(float max)
-	{
-		// minGain = -max;
-		// maxGain = max;
-	}
+	void setMagnitudeMax(float max) { }
 
 	void setArea(juce::Rectangle<float> area)
 	{
@@ -451,9 +444,6 @@ private:
 
 		graphArea = juce::Rectangle<float>(graphX, graphY, graphWidth, graphHeight);
 	}
-
-	//------------------ end copied
-
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FreqPlotter)
 };

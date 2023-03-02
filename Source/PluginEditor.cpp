@@ -130,7 +130,6 @@ void J13AudioProcessorEditor::paint(juce::Graphics& g)
 	g.setColour(juce::Colours::black);
 	g.fillRect(topBottomDividerArea);
 
-	//repaint(plotArea);
 	plotter.renderGraph(g);
 }
 
@@ -215,8 +214,6 @@ void J13AudioProcessorEditor::resized()
 	highFreqSlider.showLabel(*this);
 	highGainSlider.showLabel(*this);
 	highQSlider.showLabel(*this);
-
-	// repaint(plotArea);
 }
 
 
