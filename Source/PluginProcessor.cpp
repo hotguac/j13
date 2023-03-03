@@ -44,8 +44,6 @@ bool J13AudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 void J13AudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
 	juce::ScopedNoDenormals noDenormals;
-	auto totalNumInputChannels = getTotalNumInputChannels();
-	auto totalNumOutputChannels = getTotalNumOutputChannels();
 
 	for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
@@ -86,17 +84,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 {
 	std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", -24.0f, 24.0f, 0.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -24.0f, 24.0f, 0.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", -60.0f, 20.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", -12.0f, 12.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -12.0f, 12.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", -12.0f, 12.0f, 0.0f));
 
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 30.0f, 2000.0f, 100.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", 0.01f, 2.0f, 1.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.01f, 3.0f, 0.7f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 20.0f, 2000.0f, 100.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", -20.0f, 20.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.01f, 4.0f, 0.7f));
 
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 100.0f, 14000.0f, 2000.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", 0.01f, 2.0f, 1.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.01f, 3.0f, 0.7f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 400.0f, 20000.0f, 2000.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", -20.0f, 20.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.01f, 4.0f, 0.7f));
 
 	return { params.begin(), params.end() };
 }
@@ -164,13 +162,13 @@ void J13AudioProcessor::updateGraph()
 
 	auto skipSize = getBlockSize() - 1;
 
-	auto new_value = (apvts.getRawParameterValue("INGAIN"))->load();
+	// auto new_value = (apvts.getRawParameterValue("INGAIN"))->load();
 	updateGain("INGAIN", &smoothInGain, inputGainNode);
 	smoothInGain.skip(skipSize);
 
-	new_value = (apvts.getRawParameterValue("DRIVE"))->load();
+	// new_value = (apvts.getRawParameterValue("DRIVE"))->load();
 	updateGain("DRIVE", &smoothDrive, driveNode);
-	((GainProcessor*)driveOffsetNode.get()->getProcessor())->updateGain(smoothDrive.getCurrentValue());
+	// ((GainProcessor*)driveOffsetNode.get()->getProcessor())->updateGain(smoothDrive.getCurrentValue());
 	smoothDrive.skip(skipSize);
 
 	updateGain("OUTGAIN", &smoothOutGain, outputGainNode);
@@ -186,7 +184,9 @@ void J13AudioProcessor::updateGraph()
 	}
 	smoothLowQ.setTargetValue(lowq);
 
-	auto lowgain = (apvts.getRawParameterValue("LOWGAIN"))->load();
+	auto lowgainDb = (apvts.getRawParameterValue("LOWGAIN"))->load();
+	auto lowgain = juce::Decibels::decibelsToGain(lowgainDb);
+
 	if (lowgain < 0.1f) {
 		lowgain = 0.1f;
 	}
@@ -210,7 +210,9 @@ void J13AudioProcessor::updateGraph()
 	}
 	smoothHighQ.setTargetValue(highq);
 
-	auto highgain = (apvts.getRawParameterValue("HIGHGAIN"))->load();
+	auto highgainDb = (apvts.getRawParameterValue("HIGHGAIN"))->load();
+	auto highgain = juce::Decibels::decibelsToGain(highgainDb);
+
 	if (highgain < 0.1f) {
 		highgain = 0.1f;
 	}
@@ -227,16 +229,28 @@ void J13AudioProcessor::updateGraph()
 
 juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)
 {
-	auto node = lowShelfNode.get();
+	juce::AudioProcessorGraph::Node* node;
+	if (filterNum == 0) {
+		node = lowShelfNode.get();
+	} else if (filterNum == 1) {
+		node = highShelfNode.get();
+	} else {
+		return nullptr;
+	}
 
 	if (node == nullptr) {
 		return nullptr;
 	}
 
 	auto proc = node->getProcessor();
-	auto coeffs = ((LowShelfProcessor*)proc)->getCoeffs();
 
-	return coeffs;
+	if (filterNum == 0) {
+		return ((LowShelfProcessor*)proc)->getCoeffs();
+	} else if (filterNum == 1) {
+		return ((HighShelfProcessor*)proc)->getCoeffs();
+	}
+
+	return nullptr;
 }
 
 void J13AudioProcessor::connectAudioNodes()

@@ -330,6 +330,11 @@ private:
 		auto lastY = -1.0f;
 
 		g.setColour(plotColour);
+
+		if (curveNum == 1) {
+			g.setColour(plotColour.withHue(0.8));
+		}
+
 		auto z = curveCoeffs[curveNum].get();
 
 		auto minX = frequencyToGraphX(minFrequency);
@@ -394,9 +399,10 @@ private:
 					y = y - height;
 				}
 
-				g.setColour(juce::Colours::lightblue);
-				juce::Rectangle<int> fillArea(p.getX(), y, 1, height);
+				juce::Colour color = juce::Colours::lightblue.withAlpha(0.2f);
+				g.setColour(color);
 
+				juce::Rectangle<int> fillArea(p.getX(), y, 1, height);
 				g.fillRect(fillArea);
 			}
 

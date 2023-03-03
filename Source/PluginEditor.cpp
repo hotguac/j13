@@ -87,9 +87,8 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	highQSliderAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHQ", highQSlider);
 
-	startTimer(2000);
-
 	addAndMakeVisible(plotter);
+	startTimer(100);
 }
 
 J13AudioProcessorEditor::~J13AudioProcessorEditor()
@@ -129,7 +128,6 @@ void J13AudioProcessorEditor::paint(juce::Graphics& g)
 }
 
 void J13AudioProcessorEditor::resized()
-
 {
 	// The sequence of commands is significant, they can't be reordered because of
 	// the .removeFrom* calls
@@ -219,11 +217,11 @@ void J13AudioProcessorEditor::timerCallback()
 	auto x = audioProcessor.getCoeffs(0);
 	if (x == nullptr) {
 		if (!isTimerRunning())
-			startTimer(5000);
+			startTimer(100);
 	} else {
 		plotter.clearCoeffs();
-		plotter.addCoeffs(audioProcessor.getCoeffs(0));
-	}
 
-	//repaint(plotArea);
+		plotter.addCoeffs(x);
+		plotter.addCoeffs(audioProcessor.getCoeffs(1));
+	}
 }
