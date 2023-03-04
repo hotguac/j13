@@ -85,5 +85,25 @@ private:
 
 	void timerCallback() override;
 
+	juce::Image background;
+	void layoutSizes();
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };
+
+
+/*
+TODO:
+
+- Add low-mid and high-mid peak filters
+- Add brushed aluminum look to GUI background
+- Add brushed aluminum look to knobs
+- Add 3D look to knobs (top hat viewed directly), with darker edges and shiny middle
+- Rearrange controls, left to right, to be Input Section; Low Shelf; Low Mid Peak; Drive Section; High Mid Peak; High Shelf; Output Section
+- Modify Input and Output Sections to have Clean; Warm; Bright saturation (xfmr) selection with 'lit' buttons
+- Adjust Freq to be restricted to 'sweet' zones and accomadate the new Mid Peak filters.
+- For Mid Peak filters make the Q variable based on the gain, broad at low gain values and tighter at higher gain values
+- Change High and Low Shelf Q to 'lit' buttons choosing normal, broad, or steep
+
+
+*/
