@@ -88,13 +88,21 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -12.0f, 12.0f, 0.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", -12.0f, 12.0f, 0.0f));
 
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 20.0f, 2000.0f, 100.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 20.0f, 220.0f, 100.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", -20.0f, 20.0f, 0.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.01f, 4.0f, 0.7f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.3f, 1.8f, 0.7f));
 
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 400.0f, 20000.0f, 2000.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWMIDFREQ", "Low Mid Freq", 220.0f, 3600.0f, 100.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWMIDGAIN", "Low Mid Gain", -20.0f, 20.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWMIDQ", "Low Mid Resonance", 0.4f, 3.0f, 0.7f));
+
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHMIDFREQ", "High Mid Freq", 3000.0f, 6000.0f, 2000.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHMIDGAIN", "High Mid Gain", -20.0f, 20.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHMIDQ", "High Mid Resonance", 0.4f, 3.0f, 0.7f));
+
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 4000.0f, 20000.0f, 4000.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", -20.0f, 20.0f, 0.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.01f, 4.0f, 0.7f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.3f, 1.8f, 0.7f));
 
 	return { params.begin(), params.end() };
 }
@@ -139,6 +147,8 @@ void J13AudioProcessor::initialiseGraph()
 	outSaturationNode = mainProcessor->addNode(std::make_unique<SaturationProcessor>());
 
 	highShelfNode = mainProcessor->addNode(std::make_unique<HighShelfProcessor>());
+	highMidPeakNode = mainProcessor->addNode(std::make_unique<PeakProcessor>());
+	lowMidPeakNode = mainProcessor->addNode(std::make_unique<PeakProcessor>());
 	lowShelfNode = mainProcessor->addNode(std::make_unique<LowShelfProcessor>());
 
 	connectAudioNodes();
@@ -162,13 +172,10 @@ void J13AudioProcessor::updateGraph()
 
 	auto skipSize = getBlockSize() - 1;
 
-	// auto new_value = (apvts.getRawParameterValue("INGAIN"))->load();
 	updateGain("INGAIN", &smoothInGain, inputGainNode);
 	smoothInGain.skip(skipSize);
 
-	// new_value = (apvts.getRawParameterValue("DRIVE"))->load();
 	updateGain("DRIVE", &smoothDrive, driveNode);
-	// ((GainProcessor*)driveOffsetNode.get()->getProcessor())->updateGain(smoothDrive.getCurrentValue());
 	smoothDrive.skip(skipSize);
 
 	updateGain("OUTGAIN", &smoothOutGain, outputGainNode);
@@ -200,6 +207,63 @@ void J13AudioProcessor::updateGraph()
 	smoothLowQ.skip(getBlockSize() - 1);
 	smoothLowGain.skip(getBlockSize() - 1);
 
+	//-------------------------------------------------------------
+	//-------------------------------------------------------------
+	auto lowMidFreq = (apvts.getRawParameterValue("LOWMIDFREQ"))->load();
+	smoothLowMidFreq.setTargetValue(lowMidFreq);
+
+	auto lowMidQ = (apvts.getRawParameterValue("LOWMIDQ"))->load();
+	if (lowMidQ < 0.1f) {
+		lowMidQ = 0.1f;
+	}
+	smoothLowMidQ.setTargetValue(lowMidQ);
+
+	auto lowMidGainDb = (apvts.getRawParameterValue("LOWMIDGAIN"))->load();
+	auto lowMidGain = juce::Decibels::decibelsToGain(lowMidGainDb);
+
+	if (lowMidGain < 0.1f) {
+		lowMidGain = 0.1f;
+	}
+
+	smoothLowMidGain.setTargetValue(lowMidGain);
+
+	((PeakProcessor*)lowMidPeakNode.get()->getProcessor())
+		->updateSettings(
+			sampleRate, smoothLowMidFreq.getNextValue(), smoothLowMidQ.getNextValue(), smoothLowMidGain.getNextValue());
+
+	smoothLowMidFreq.skip(getBlockSize() - 1);
+	smoothLowMidQ.skip(getBlockSize() - 1);
+	smoothLowMidGain.skip(getBlockSize() - 1);
+
+	//-------------------------------------------------------------
+	//-------------------------------------------------------------
+	auto highMidFreq = (apvts.getRawParameterValue("HIGHMIDFREQ"))->load();
+	smoothHighMidFreq.setTargetValue(highMidFreq);
+
+	auto highMidQ = (apvts.getRawParameterValue("HIGHMIDQ"))->load();
+	if (highMidQ < 0.1f) {
+		highMidQ = 0.1f;
+	}
+	smoothHighMidQ.setTargetValue(highMidQ);
+
+	auto highMidGainDb = (apvts.getRawParameterValue("HIGHMIDGAIN"))->load();
+	auto highMidGain = juce::Decibels::decibelsToGain(highMidGainDb);
+
+	if (highMidGain < 0.1f) {
+		highMidGain = 0.1f;
+	}
+
+	smoothHighMidGain.setTargetValue(highMidGain);
+
+	((PeakProcessor*)highMidPeakNode.get()->getProcessor())
+		->updateSettings(
+			sampleRate, smoothHighMidFreq.getNextValue(), smoothHighMidQ.getNextValue(), smoothHighMidGain.getNextValue());
+
+	smoothHighMidFreq.skip(getBlockSize() - 1);
+	smoothHighMidQ.skip(getBlockSize() - 1);
+	smoothHighMidGain.skip(getBlockSize() - 1);
+
+	//-------------------------------------------------------------
 	//-------------------------------------------------------------
 	auto highfreq = (apvts.getRawParameterValue("HIGHFREQ"))->load();
 	smoothHighFreq.setTargetValue(highfreq);
@@ -233,6 +297,10 @@ juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)
 	if (filterNum == 0) {
 		node = lowShelfNode.get();
 	} else if (filterNum == 1) {
+		node = lowMidPeakNode.get();
+	} else if (filterNum == 2) {
+		node = highMidPeakNode.get();
+	} else if (filterNum == 3) {
 		node = highShelfNode.get();
 	} else {
 		return nullptr;
@@ -247,6 +315,10 @@ juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)
 	if (filterNum == 0) {
 		return ((LowShelfProcessor*)proc)->getCoeffs();
 	} else if (filterNum == 1) {
+		return ((PeakProcessor*)proc)->getCoeffs();
+	} else if (filterNum == 2) {
+		return ((PeakProcessor*)proc)->getCoeffs();
+	} else if (filterNum == 3) {
 		return ((HighShelfProcessor*)proc)->getCoeffs();
 	}
 
@@ -257,13 +329,25 @@ void J13AudioProcessor::connectAudioNodes()
 {
 	for (int channel = 0; channel < 2; ++channel) {
 		mainProcessor->addConnection({ { audioInputNode->nodeID, channel }, { inputGainNode->nodeID, channel } });
+
 		mainProcessor->addConnection({ { inputGainNode->nodeID, channel }, { inSaturationNode->nodeID, channel } });
+
 		mainProcessor->addConnection({ { inSaturationNode->nodeID, channel }, { lowShelfNode->nodeID, channel } });
-		mainProcessor->addConnection({ { lowShelfNode->nodeID, channel }, { highShelfNode->nodeID, channel } });
-		mainProcessor->addConnection({ { highShelfNode->nodeID, channel }, { driveNode->nodeID, channel } });
-		mainProcessor->addConnection({ { driveNode->nodeID, channel }, { outSaturationNode->nodeID, channel } });
+
+		mainProcessor->addConnection({ { lowShelfNode->nodeID, channel }, { lowMidPeakNode->nodeID, channel } });
+
+		mainProcessor->addConnection({ { lowMidPeakNode->nodeID, channel }, { driveNode->nodeID, channel } });
+
+		mainProcessor->addConnection({ { driveNode->nodeID, channel }, { highMidPeakNode->nodeID, channel } });
+
+		mainProcessor->addConnection({ { highMidPeakNode->nodeID, channel }, { highShelfNode->nodeID, channel } });
+
+		mainProcessor->addConnection({ { highShelfNode->nodeID, channel }, { outSaturationNode->nodeID, channel } });
+
 		mainProcessor->addConnection({ { outSaturationNode->nodeID, channel }, { outputGainNode->nodeID, channel } });
+
 		mainProcessor->addConnection({ { outputGainNode->nodeID, channel }, { driveOffsetNode->nodeID, channel } });
+
 		mainProcessor->addConnection({ { driveOffsetNode->nodeID, channel }, { audioOutputNode->nodeID, channel } });
 	}
 }

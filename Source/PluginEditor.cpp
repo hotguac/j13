@@ -23,7 +23,7 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
-	setSize(600, 500); // 400
+	setSize(640, 640); // 400
 
 	// -----------------------------------------------
 	// do the gain staging controls
@@ -163,7 +163,7 @@ void J13AudioProcessorEditor::layoutSizes()
 {
 	area = getLocalBounds();
 
-	plotArea = area.removeFromTop(area.getHeight() / 4.5f);
+	plotArea = area.removeFromTop(area.getHeight() / 2.4);
 
 	inputSection = area.removeFromLeft(area.getWidth() / 7.0f);
 	int stripWidth = inputSection.getWidth();
@@ -186,7 +186,12 @@ void J13AudioProcessorEditor::layoutSizes()
 
 	inputSection.removeFromTop(controlHeight / 2);
 	inGainArea = inputSection.removeFromTop(controlHeight);
-	outGainArea = (outputSection.removeFromTop(controlHeight / 2)).removeFromTop(controlHeight);
+
+	driveSection.removeFromTop(controlHeight / 2);
+	driveArea = driveSection.removeFromTop(controlHeight);
+
+	outputSection.removeFromTop(controlHeight / 2.0f);
+	outGainArea = outputSection.removeFromTop(controlHeight);
 
 
 	lowFreqArea = lowSection.removeFromTop(controlHeight);
@@ -222,7 +227,7 @@ void J13AudioProcessorEditor::resized()
 	plotter.setBounds(plotArea);
 
 	inGainSlider.setBounds(inGainArea);
-	driveSlider.setBounds(driveSection);
+	driveSlider.setBounds(driveArea);
 	outGainSlider.setBounds(outGainArea);
 
 	inGainSlider.showLabel(*this);
@@ -254,7 +259,6 @@ void J13AudioProcessorEditor::resized()
 	highQSlider.showLabel(*this);
 }
 
-
 void J13AudioProcessorEditor::timerCallback()
 {
 	stopTimer();
@@ -268,5 +272,7 @@ void J13AudioProcessorEditor::timerCallback()
 
 		plotter.addCoeffs(x);
 		plotter.addCoeffs(audioProcessor.getCoeffs(1));
+		plotter.addCoeffs(audioProcessor.getCoeffs(2));
+		plotter.addCoeffs(audioProcessor.getCoeffs(3));
 	}
 }

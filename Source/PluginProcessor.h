@@ -70,6 +70,9 @@ private:
 	Node::Ptr highShelfNode;
 	Node::Ptr lowShelfNode;
 
+	Node::Ptr highMidPeakNode;
+	Node::Ptr lowMidPeakNode;
+
 	Node::Ptr inSaturationNode;
 	Node::Ptr outSaturationNode;
 
@@ -87,6 +90,14 @@ private:
 	juce::SmoothedValue<float> smoothLowFreq { 100.0f };
 	juce::SmoothedValue<float> smoothLowQ { 0.7f };
 	juce::SmoothedValue<float> smoothLowGain { 1.0f };
+
+	juce::SmoothedValue<float> smoothLowMidFreq { 100.0f };
+	juce::SmoothedValue<float> smoothLowMidQ { 0.7f };
+	juce::SmoothedValue<float> smoothLowMidGain { 1.0f };
+
+	juce::SmoothedValue<float> smoothHighMidFreq { 4000.0f };
+	juce::SmoothedValue<float> smoothHighMidQ { 0.7f };
+	juce::SmoothedValue<float> smoothHighMidGain { 1.0f };
 
 	juce::SmoothedValue<float> smoothHighFreq { 4000.0f };
 	juce::SmoothedValue<float> smoothHighQ { 0.7f };

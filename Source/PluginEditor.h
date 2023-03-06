@@ -103,6 +103,7 @@ private:
 
 
 	juce::Rectangle<int> inGainArea;
+	juce::Rectangle<int> driveArea;
 	juce::Rectangle<int> outGainArea;
 
 	juce::Rectangle<int> lowFreqArea;

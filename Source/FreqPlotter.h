@@ -46,7 +46,7 @@ public:
 
 		backgroundImage = juce::Image(juce::Image::PixelFormat::RGB, width, height, true);
 		juce::Graphics gg(backgroundImage);
-		gg.fillAll(juce::Colours::lightgrey);
+		//gg.fillAll(juce::Colours::lightgrey.withAlpha(0.4f));
 
 		drawBackground(gg);
 	}
@@ -281,7 +281,7 @@ private:
 
 	void drawBackground(juce::Graphics& g)
 	{
-		g.setColour(backgroundColour);
+		g.setColour(backgroundColour.withAlpha(0.6f));
 		g.fillRect(graphArea);
 
 		g.setColour(labelAreaColour);
