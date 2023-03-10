@@ -58,6 +58,11 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	lowQSliderAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWQ", lowQSlider);
 
+	addAndMakeVisible(lowNormal);
+
+	lowNormalAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWNORMAL", lowNormal);
+
 	// -----------------------------------------------
 	lowMidFreqSlider.setLookAndFeel(&jLookGain);
 	lowMidGainSlider.setLookAndFeel(&jLookFreq);
@@ -237,6 +242,8 @@ void J13AudioProcessorEditor::resized()
 	lowFreqSlider.setBounds(lowFreqArea);
 	lowGainSlider.setBounds(lowGainArea);
 	lowQSlider.setBounds(lowQArea);
+
+	lowNormal.setBounds(lowSection);
 
 	lowMidFreqSlider.setBounds(lowMidFreqArea);
 	lowMidGainSlider.setBounds(lowMidGainArea);

@@ -46,6 +46,10 @@ private:
 	jRotary lowGainSlider { "Gain" };
 	jRotary lowQSlider { "Q" };
 
+	juce::TextButton lowBump { "lowBump" };
+	juce::TextButton lowNormal { "lowNormal" };
+	juce::TextButton lowBroad { "lowBroad" };
+
 	jRotary lowMidFreqSlider { "Freq" };
 	jRotary lowMidGainSlider { "Gain" };
 	jRotary lowMidQSlider { "Q" };
@@ -67,6 +71,7 @@ private:
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowFreqSliderAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowGainSliderAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowQSliderAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowNormalAttachment;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowMidFreqSliderAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowMidGainSliderAttachment;
@@ -134,19 +139,19 @@ private:
 /*
 TODO:
 
-- Add low-mid and high-mid peak filters
-- Rearrange controls, left to right, to be Input Section; Low Shelf; Low Mid Peak; Drive Section; High Mid Peak; High Shelf; Output Section
 - Freq slider should display and move by 1Hz
 
 
 - Add brushed aluminum look to knobs
 - Add 3D look to knobs (top hat viewed directly), with darker edges and shiny middle
 - Modify Input and Output Sections to have Clean; Warm; Bright saturation (xfmr) selection with 'lit' buttons
-- Adjust Freq to be restricted to 'sweet' zones and accomadate the new Mid Peak filters.
 - For Mid Peak filters make the Q variable based on the gain, broad at low gain values and tighter at higher gain values
 - Change High and Low Shelf Q to 'lit' buttons choosing normal, broad, or steep
 
 Done-ish:
 - Add brushed aluminum look to GUI background
+- Add low-mid and high-mid peak filters
+- Rearrange controls, left to right, to be Input Section; Low Shelf; Low Mid Peak; Drive Section; High Mid Peak; High Shelf; Output Section
+- Adjust Freq to be restricted to 'sweet' zones and accomadate the new Mid Peak filters.
 
 */

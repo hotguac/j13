@@ -289,6 +289,10 @@ void J13AudioProcessor::updateGraph()
 	smoothHighFreq.skip(getBlockSize() - 1);
 	smoothHighQ.skip(getBlockSize() - 1);
 	smoothHighGain.skip(getBlockSize() - 1);
+
+
+	auto x = ((HighShelfProcessor*)highShelfNode.get()->getProcessor());
+	auto y = x->getBypassParameter();
 }
 
 juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)

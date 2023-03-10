@@ -46,7 +46,6 @@ public:
 
 		backgroundImage = juce::Image(juce::Image::PixelFormat::RGB, width, height, true);
 		juce::Graphics gg(backgroundImage);
-		//gg.fillAll(juce::Colours::lightgrey.withAlpha(0.4f));
 
 		drawBackground(gg);
 	}
@@ -62,18 +61,20 @@ public:
 		}
 	}
 
+	juce::Colour curveColours[6] = { juce::Colours::darkred, juce::Colours::darkgreen, juce::Colours::darkcyan,
+		juce::Colours::darkmagenta, juce::Colours::darkorange, juce::Colours::darkturquoise };
+
 	void renderGraph(juce::Graphics& g)
 	{
 		g.drawImageAt(backgroundImage, 0, 0, false);
 
 		auto n = curveCoeffs.size();
 
-		setPlotColour(juce::Colours::darkred);
+		//setPlotColour(juce::Colours::darkred);
 		drawCompositeCurve(g);
 
-		setPlotColour(juce::Colours::darkgreen);
-
 		for (int i = 0; i < n; ++i) {
+			setPlotColour(curveColours[i]);
 			drawCurve(g, i);
 		}
 	}
@@ -284,7 +285,7 @@ private:
 		g.setColour(backgroundColour.withAlpha(0.6f));
 		g.fillRect(graphArea);
 
-		g.setColour(labelAreaColour);
+		g.setColour(labelAreaColour.withAlpha(0.7f));
 		g.fillRect(magnitudeLabelArea);
 		g.fillRect(frequencyLabelArea);
 
@@ -329,11 +330,7 @@ private:
 		auto lastX = -1.0f;
 		auto lastY = -1.0f;
 
-		g.setColour(plotColour);
-
-		if (curveNum == 1) {
-			g.setColour(plotColour.withHue(0.8));
-		}
+		g.setColour(plotColour.withAlpha(0.7f));
 
 		auto z = curveCoeffs[curveNum].get();
 
@@ -348,6 +345,18 @@ private:
 
 			if (lastX != -1.0f) {
 				g.drawLine(lastX, lastY, p.getX(), p.getY(), 2.0f);
+
+				auto height = p.getY() - (graphHeight / 2);
+				auto y = graphY + (graphHeight / 2);
+
+				if (magnitude > 1.0f) {
+					height *= -1.0f;
+					y = y - height;
+				}
+
+				g.setColour(plotColour.withAlpha(0.1f));
+				juce::Rectangle<int> fillArea(p.getX(), y, 1, height);
+				g.fillRect(fillArea);
 			}
 
 			lastX = p.getX();
@@ -378,10 +387,9 @@ private:
 			auto freq = getGraphFreq(x);
 
 			magnitude = 0.0f;
+			// normalize magnitude by subtracting one here to prevent the curve shifting
 			for (auto curveNum = 0; curveNum < numCurves; ++curveNum) {
 				z = curveCoeffs[curveNum].get();
-				// normalize magnitude by subtracting one here
-				// to prevent the curve shifting
 				magnitude += z->getMagnitudeForFrequency(freq, sampleRate) - 1.0f;
 			}
 
