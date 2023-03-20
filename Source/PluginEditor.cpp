@@ -35,33 +35,41 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	addAndMakeVisible(driveSlider);
 	addAndMakeVisible(outGainSlider);
 
-	inGainSliderAttachment
+	inGainAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "INGAIN", inGainSlider);
-	driveSliderAttachment
+	driveAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DRIVE", driveSlider);
-	outGainSliderAttachment
+	outGainAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "OUTGAIN", outGainSlider);
 
 	// -----------------------------------------------
 	lowFreqSlider.setLookAndFeel(&jLookGain);
 	lowGainSlider.setLookAndFeel(&jLookFreq);
-	lowQSlider.setLookAndFeel(&jLookRes);
 
 	addAndMakeVisible(lowFreqSlider);
 	addAndMakeVisible(lowGainSlider);
-	addAndMakeVisible(lowQSlider);
 
-	lowFreqSliderAttachment
+	lowFreqAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWFREQ", lowFreqSlider);
-	lowGainSliderAttachment
+	lowGainAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWGAIN", lowGainSlider);
-	lowQSliderAttachment
+	lowQAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWQ", lowQSlider);
 
 	addAndMakeVisible(lowNormal);
+	addAndMakeVisible(lowBump);
+	addAndMakeVisible(lowWide);
 
 	lowNormalAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWNORMAL", lowNormal);
+	lowBumpAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWNBUMP", lowBump);
+	lowWideAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWWIDE", lowWide);
+
+	lowBump.onClick = [this] { lowBumpClicked(); };
+	lowNormal.onClick = [this] { lowNormalClicked(); };
+	lowWide.onClick = [this] { lowWideClicked(); };
 
 	// -----------------------------------------------
 	lowMidFreqSlider.setLookAndFeel(&jLookGain);
@@ -72,11 +80,11 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	addAndMakeVisible(lowMidGainSlider);
 	addAndMakeVisible(lowMidQSlider);
 
-	lowMidFreqSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+	lowMidFreqAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "LOWMIDFREQ", lowMidFreqSlider);
-	lowMidGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+	lowMidGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "LOWMIDGAIN", lowMidGainSlider);
-	lowMidQSliderAttachment
+	lowMidQAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWMIDQ", lowMidQSlider);
 
 	// -----------------------------------------------
@@ -88,11 +96,11 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	addAndMakeVisible(highMidGainSlider);
 	addAndMakeVisible(highMidQSlider);
 
-	highMidFreqSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+	highMidFreqAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHMIDFREQ", highMidFreqSlider);
-	highMidGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+	highMidGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHMIDGAIN", highMidGainSlider);
-	highMidQSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+	highMidQAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHMIDQ", highMidQSlider);
 
 	// -----------------------------------------------
@@ -102,13 +110,13 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 
 	addAndMakeVisible(highFreqSlider);
 	addAndMakeVisible(highGainSlider);
-	addAndMakeVisible(highQSlider);
+	// addAndMakeVisible(highQSlider);
 
-	highFreqSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+	highFreqAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHFREQ", highFreqSlider);
-	highGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+	highGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHGAIN", highGainSlider);
-	highQSliderAttachment
+	highQAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHQ", highQSlider);
 
 	// -----------------------------------------------
@@ -164,52 +172,124 @@ void J13AudioProcessorEditor::paint(juce::Graphics& g)
 	plotter.repaint(plotArea);
 }
 
+juce::Rectangle<int> J13AudioProcessorEditor::shrinkArea(juce::Rectangle<int> area)
+{
+	//
+	area.setWidth(area.getWidth() - 6);
+	area.setLeft(area.getX() + 3);
+	area.setHeight(area.getHeight() - 4);
+	area.setTop(area.getY() + 2);
+
+	return area;
+}
+
+void J13AudioProcessorEditor::lowBumpClicked()
+{
+
+
+	// Almost works but only checked at time of click, need to attach to gain slider
+
+
+	std::cout << "lowBumpClicked" << std::endl;
+	if (lowGainSlider.getValue() < 0.0f) {
+		lowQSlider.setValue(1.4f, juce::NotificationType::sendNotification);
+	} else {
+		lowQSlider.setValue(0.7f, juce::NotificationType::sendNotification);
+	}
+
+	lowBump.setToggleable(true);
+	lowBump.setColour(0, juce::Colours::blue);
+	lowBump.setColour(1, juce::Colours::red);
+}
+
+void J13AudioProcessorEditor::lowNormalClicked()
+{
+	//
+	std::cout << "lowNormalClicked" << std::endl;
+	lowQSlider.setValue(0.7f, juce::NotificationType::sendNotification);
+
+	lowBump.setToggleable(true);
+	lowBump.setColour(0, juce::Colours::blue);
+	lowBump.setColour(1, juce::Colours::red);
+}
+
+void J13AudioProcessorEditor::lowWideClicked()
+{
+	//
+	std::cout << "lowWideClicked" << std::endl;
+	lowQSlider.setValue(0.4f, juce::NotificationType::sendNotification);
+
+	lowBump.setToggleable(true);
+	lowBump.setColour(0, juce::Colours::blue);
+	lowBump.setColour(1, juce::Colours::red);
+}
+
 void J13AudioProcessorEditor::layoutSizes()
 {
 	area = getLocalBounds();
 
 	plotArea = area.removeFromTop(area.getHeight() / 2.4);
 
-	inputSection = area.removeFromLeft(area.getWidth() / 7.0f);
+	inputSection = area.removeFromLeft(area.getWidth() / 5.8f);
 	int stripWidth = inputSection.getWidth();
 	int stripHeight = inputSection.getHeight();
-	int controlHeight = stripHeight / 3.5f;
+	int controlHeight = stripHeight / 4.0f; // 3.5f;
 
 	lowSection = area.removeFromLeft(stripWidth);
-	lowMidSection = area.removeFromLeft(stripWidth);
-	driveSection = area.removeFromLeft(stripWidth);
-	highMidSection = area.removeFromLeft(stripWidth);
-	highSection = area.removeFromLeft(stripWidth);
-	outputSection = area;
+	outputSection = area.removeFromRight(stripWidth);
+	highSection = area.removeFromRight(stripWidth);
+	midSection = area;
 
 	inputLowDivider = inputSection.removeFromRight(4);
 	lowMidDivider = lowSection.removeFromRight(4);
-	lowDriveDivider = lowMidSection.removeFromRight(4);
-	driveHighDivider = driveSection.removeFromRight(4);
-	midHighDivider = highMidSection.removeFromRight(4);
+	midHighDivider = midSection.removeFromRight(4);
 	highOutputDivider = highSection.removeFromRight(4);
 
-	inputSection.removeFromTop(controlHeight / 2);
+	inputSection.removeFromTop(controlHeight / 4);
 	inGainArea = inputSection.removeFromTop(controlHeight);
+	inputCleanArea = inputSection.removeFromTop(controlHeight / 3.2f);
+	inputWarmArea = inputSection.removeFromTop(inputCleanArea.getHeight());
+	inputBrightArea = inputSection.removeFromTop(inputCleanArea.getHeight());
+	inputSection.removeFromTop(controlHeight / 4);
 
-	driveSection.removeFromTop(controlHeight / 2);
-	driveArea = driveSection.removeFromTop(controlHeight);
+	driveArea = inputSection.removeFromTop(controlHeight);
 
 	outputSection.removeFromTop(controlHeight / 2.0f);
 	outGainArea = outputSection.removeFromTop(controlHeight);
 
 
 	lowFreqArea = lowSection.removeFromTop(controlHeight);
-	lowGainArea = lowSection.removeFromTop(controlHeight);
-	lowQArea = lowSection.removeFromTop(controlHeight);
+	lowGainArea = lowSection.removeFromTop(controlHeight / 1.05f);
+	lowQArea = lowSection.removeFromTop(controlHeight / 1.1f);
 
-	lowMidFreqArea = lowMidSection.removeFromTop(controlHeight);
-	lowMidGainArea = lowMidSection.removeFromTop(controlHeight);
-	lowMidQArea = lowMidSection.removeFromTop(controlHeight);
+	lowNormalArea = lowSection.removeFromTop(lowSection.getHeight() / 3.2f);
+	lowBumpArea = lowSection.removeFromTop(lowNormalArea.getHeight());
+	lowWideArea = lowSection.removeFromTop(lowNormalArea.getHeight());
 
-	highMidFreqArea = highMidSection.removeFromTop(controlHeight);
-	highMidGainArea = highMidSection.removeFromTop(controlHeight);
-	highMidQArea = highMidSection.removeFromTop(controlHeight);
+	lowNormalArea = shrinkArea(lowNormalArea);
+	lowBumpArea = shrinkArea(lowBumpArea);
+	lowWideArea = shrinkArea(lowWideArea);
+
+	auto midWidth = midSection.getWidth();
+	auto midHeight = midSection.getHeight();
+
+	lowMidFreqArea = midSection.removeFromTop(controlHeight);
+	lowMidGainArea = lowMidFreqArea.removeFromRight(midWidth / 2.0f);
+
+	midSection.removeFromTop(8);
+
+	auto saveArea = midSection;
+	lowMidQArea = midSection.removeFromTop(controlHeight);
+	lowMidQArea.removeFromRight(midWidth / 2.0f);
+	midSection = saveArea;
+	midSection.removeFromTop(controlHeight / 1.8f);
+
+	highMidFreqArea = midSection.removeFromTop(controlHeight);
+	highMidFreqArea.removeFromLeft(midWidth / 2.0);
+
+	midSection.removeFromTop(8);
+	highMidGainArea = midSection.removeFromTop(controlHeight);
+	highMidQArea = highMidGainArea.removeFromRight(midWidth / 2.0f);
 
 	highFreqArea = highSection.removeFromTop(controlHeight);
 	highGainArea = highSection.removeFromTop(controlHeight);
@@ -243,7 +323,9 @@ void J13AudioProcessorEditor::resized()
 	lowGainSlider.setBounds(lowGainArea);
 	lowQSlider.setBounds(lowQArea);
 
-	lowNormal.setBounds(lowSection);
+	lowNormal.setBounds(lowNormalArea);
+	lowBump.setBounds(lowBumpArea);
+	lowWide.setBounds(lowWideArea);
 
 	lowMidFreqSlider.setBounds(lowMidFreqArea);
 	lowMidGainSlider.setBounds(lowMidGainArea);
@@ -260,6 +342,14 @@ void J13AudioProcessorEditor::resized()
 	lowFreqSlider.showLabel(*this);
 	lowGainSlider.showLabel(*this);
 	lowQSlider.showLabel(*this);
+
+	lowMidFreqSlider.showLabel(*this);
+	lowMidGainSlider.showLabel(*this);
+	lowMidQSlider.showLabel(*this);
+
+	highMidFreqSlider.showLabel(*this);
+	highMidGainSlider.showLabel(*this);
+	highMidQSlider.showLabel(*this);
 
 	highFreqSlider.showLabel(*this);
 	highGainSlider.showLabel(*this);

@@ -86,11 +86,22 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", -12.0f, 12.0f, 0.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -12.0f, 12.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("INPUTCLEAN", "Input Clean", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("INPUTWARM", "Input Warm", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("INPUTBRIGHT", "Input Bright", false));
+
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", -12.0f, 12.0f, 0.0f));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTPUTCLEAN", "Output Clean", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTPUTWARM", "Output Warm", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTPUTTHICK", "Output Thick", false));
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 20.0f, 220.0f, 100.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", -20.0f, 20.0f, 0.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.3f, 1.8f, 0.7f));
+
+	params.push_back(std::make_unique<juce::AudioParameterBool>("LOWBUMP", "Low Bump", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("LOWNORMAL", "Low Normal", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("LOWWIDE", "Low Wide", false));
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWMIDFREQ", "Low Mid Freq", 220.0f, 3600.0f, 100.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWMIDGAIN", "Low Mid Gain", -20.0f, 20.0f, 0.0f));
@@ -103,6 +114,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 4000.0f, 20000.0f, 4000.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", -20.0f, 20.0f, 0.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.3f, 1.8f, 0.7f));
+
+	params.push_back(std::make_unique<juce::AudioParameterBool>("HIGHBUMP", "High Bump", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("HIGHNORMAL", "High Normal", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("HIGHWIDE", "High Wide", false));
 
 	return { params.begin(), params.end() };
 }
@@ -123,6 +138,14 @@ void J13AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	smoothLowFreq.reset(sampleRate, 0.5f);
 	smoothLowGain.reset(sampleRate, 0.5f);
 	smoothLowQ.reset(sampleRate, 0.5f);
+
+	smoothLowMidFreq.reset(sampleRate, 0.5f);
+	smoothLowMidGain.reset(sampleRate, 0.5f);
+	smoothLowMidQ.reset(sampleRate, 0.5f);
+
+	smoothHighMidFreq.reset(sampleRate, 0.5f);
+	smoothHighMidGain.reset(sampleRate, 0.5f);
+	smoothHighMidQ.reset(sampleRate, 0.5f);
 
 	smoothHighFreq.reset(sampleRate, 0.5f);
 	smoothHighGain.reset(sampleRate, 0.5f);
@@ -184,6 +207,10 @@ void J13AudioProcessor::updateGraph()
 	//-------------------------------------------------------------
 	auto lowfreq = (apvts.getRawParameterValue("LOWFREQ"))->load();
 	smoothLowFreq.setTargetValue(lowfreq);
+
+	auto lowNormal = (apvts.getRawParameterValue("LOWNORMAL"))->load();
+	auto lowBump = (apvts.getRawParameterValue("LOWNORMAL"))->load();
+	auto lowWide = (apvts.getRawParameterValue("LOWNORMAL"))->load();
 
 	auto lowq = (apvts.getRawParameterValue("LOWQ"))->load();
 	if (lowq < 0.1f) {
