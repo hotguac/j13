@@ -32,12 +32,16 @@ private:
 	// access the processor object that created it.
 	J13AudioProcessor& audioProcessor;
 
+	// cached images
+	juce::Image background;
+
 	// Look and feel must be before any component that uses it!!
 	jLookAndFeel jLookGain;
 	jLookAndFeel jLookFreq;
 	jLookAndFeel jLookRes;
 	jLookAndFeel jLookBackground;
 
+	// Rotary Controls
 	jRotary inGainSlider { "Input" };
 	jRotary driveSlider { "Drive" };
 	jRotary outGainSlider { "Output" };
@@ -61,6 +65,7 @@ private:
 	jRotary lowPassSlider { "LowPass" };
 	jRotary highPassSlider { "HighPass" };
 
+	// Buttons
 	juce::TextButton lowBump { "Bump" };	// Q = 1.4f
 	juce::TextButton lowNormal { "Shelf" }; // Q = 0.7f
 	juce::TextButton lowWide { "Wide" };	// Q = 0.4f
@@ -75,32 +80,20 @@ private:
 
 	juce::TextButton outputClean { "Clean" };
 	juce::TextButton outputWarm { "Warm" };
-	juce::TextButton outputBright { "Thick" };
+	juce::TextButton outputThick { "Thick" };
 
+	// Fonts
 	juce::Font labelFont { LABELFONTSIZE };
 
+	// Attachments to rotary controls, used to share with the AudioProcessor
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inGainAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> inputCleanAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> inputWarmAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> inputBrightAttachment;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outGainAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputCleanAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputWarmAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputBrightAttachment;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowFreqAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowGainAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowQAttachment;
-
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowNormalAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowBumpAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowWideAttachment;
-
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highNormalAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highBumpAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highWideAttachment;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowMidFreqAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowMidGainAttachment;
@@ -117,13 +110,31 @@ private:
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highPassAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowPassAttachment;
 
+	// Attachments to buttons, used to share with the AudioProcessor
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> inputCleanAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> inputWarmAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> inputBrightAttachment;
+
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputCleanAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputWarmAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputBrightAttachment;
+
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowNormalAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowBumpAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowWideAttachment;
+
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highNormalAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highBumpAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highWideAttachment;
+
+	// Frequency Response Plotter
 	FreqPlotter plotter;
 
-	juce::Rectangle<int> area; // Total available to work with
-
-	juce::Rectangle<int> plotArea; // Display of EQ curve
+	// Total available to work with
+	juce::Rectangle<int> area;
 
 	// Major sections
+	juce::Rectangle<int> plotSection;
 	juce::Rectangle<int> inputSection;
 	juce::Rectangle<int> lowSection;
 	juce::Rectangle<int> midSection;
@@ -158,6 +169,10 @@ private:
 	juce::Rectangle<int> lowBumpArea;
 	juce::Rectangle<int> lowWideArea;
 
+	juce::Rectangle<int> highNormalArea;
+	juce::Rectangle<int> highBumpArea;
+	juce::Rectangle<int> highWideArea;
+
 	juce::Rectangle<int> lowMidFreqArea;
 	juce::Rectangle<int> lowMidGainArea;
 	juce::Rectangle<int> lowMidQArea;
@@ -173,10 +188,18 @@ private:
 	juce::Rectangle<int> lowQArea;
 	juce::Rectangle<int> highQArea;
 
+	//
 	void timerCallback() override;
 
-	juce::Image background;
 	void layoutSizes();
+	juce::Rectangle<int> shrinkArea(juce::Rectangle<int> area);
+
+	// Create and attach controls
+	void createInputControls();
+	void createLowControls();
+	void createMidControls();
+	void createHighControls();
+	void createOutputControls();
 
 	void lowBumpClicked();
 	void lowNormalClicked();
@@ -186,7 +209,6 @@ private:
 	void highNormalClicked();
 	void highWideClicked();
 
-	juce::Rectangle<int> shrinkArea(juce::Rectangle<int> area);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };
