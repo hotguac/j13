@@ -62,6 +62,9 @@ J13AudioProcessorEditor::~J13AudioProcessorEditor()
 	highGainSlider.setLookAndFeel(nullptr);
 	highQSlider.setLookAndFeel(nullptr);
 
+	highPassSlider.setLookAndFeel(nullptr);
+	lowPassSlider.setLookAndFeel(nullptr);
+
 	this->setLookAndFeel(nullptr);
 }
 
@@ -83,6 +86,12 @@ void J13AudioProcessorEditor::createInputControls()
 	addAndMakeVisible(inputClean);
 	addAndMakeVisible(inputWarm);
 	addAndMakeVisible(inputBright);
+
+	inGainSlider.textFromValueFunction = [](double value) { return juce::String(value, 1); };
+	driveSlider.textFromValueFunction = [](double value) { return juce::String(value, 1); };
+
+	inGainSlider.updateText();
+	driveSlider.updateText();
 }
 
 void J13AudioProcessorEditor::createLowControls()
@@ -108,13 +117,19 @@ void J13AudioProcessorEditor::createLowControls()
 	lowNormalAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWNORMAL", lowNormal);
 	lowBumpAttachment
-		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWNBUMP", lowBump);
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWBUMP", lowBump);
 	lowWideAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWWIDE", lowWide);
 
 	lowBump.onClick = [this] { lowBumpClicked(); };
 	lowNormal.onClick = [this] { lowNormalClicked(); };
 	lowWide.onClick = [this] { lowWideClicked(); };
+
+	lowFreqSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
+	lowFreqSlider.updateText();
+
+	lowGainSlider.textFromValueFunction = [](double value) { return String(value, 1); };
+	lowGainSlider.updateText();
 }
 
 void J13AudioProcessorEditor::createMidControls()
@@ -150,6 +165,23 @@ void J13AudioProcessorEditor::createMidControls()
 		audioProcessor.apvts, "HIGHMIDGAIN", highMidGainSlider);
 	highMidQAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHMIDQ", highMidQSlider);
+
+	lowMidFreqSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
+	highMidFreqSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
+
+	lowMidGainSlider.textFromValueFunction = [](double value) { return juce::String(value, 1); };
+	highMidGainSlider.textFromValueFunction = [](double value) { return juce::String(value, 1); };
+
+	lowMidQSlider.textFromValueFunction = [](double value) { return juce::String(value, 1); };
+	highMidQSlider.textFromValueFunction = [](double value) { return juce::String(value, 1); };
+
+	lowMidFreqSlider.updateText();
+	highMidFreqSlider.updateText();
+
+	lowMidGainSlider.updateText();
+	highMidGainSlider.updateText();
+	lowMidQSlider.updateText();
+	highMidQSlider.updateText();
 }
 
 void J13AudioProcessorEditor::createHighControls()
@@ -171,6 +203,9 @@ void J13AudioProcessorEditor::createHighControls()
 	addAndMakeVisible(highNormal);
 	addAndMakeVisible(highBump);
 	addAndMakeVisible(highWide);
+
+	highFreqSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
+	highFreqSlider.updateText();
 }
 
 void J13AudioProcessorEditor::createOutputControls()
@@ -185,6 +220,23 @@ void J13AudioProcessorEditor::createOutputControls()
 	addAndMakeVisible(outputClean);
 	addAndMakeVisible(outputWarm);
 	addAndMakeVisible(outputThick);
+
+	highPassSlider.setLookAndFeel(&jLookRes);
+	lowPassSlider.setLookAndFeel(&jLookRes);
+
+	addAndMakeVisible(highPassSlider);
+	addAndMakeVisible(lowPassSlider);
+
+	highPassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+		audioProcessor.apvts, "HIGHPASS", highPassSlider);
+	lowPassAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWPASS", lowPassSlider);
+
+	highPassSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
+	lowPassSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
+
+	highPassSlider.updateText();
+	lowPassSlider.updateText();
 }
 
 void J13AudioProcessorEditor::paint(juce::Graphics& g)
@@ -294,6 +346,8 @@ void J13AudioProcessorEditor::layoutSizes()
 	outputWarmArea = outputSection.removeFromTop(outputCleanArea.getHeight());
 	outputThickArea = outputSection.removeFromTop(outputCleanArea.getHeight());
 
+	highPassArea = outputSection.removeFromTop(outputSection.getHeight() / 2.0f);
+	lowPassArea = outputSection;
 
 	lowFreqArea = lowSection.removeFromTop(controlHeight);
 	lowGainArea = lowSection.removeFromTop(controlHeight / 1.05f);
@@ -392,6 +446,9 @@ void J13AudioProcessorEditor::resized()
 	highBump.setBounds(highBumpArea);
 	highWide.setBounds(highWideArea);
 
+	highPassSlider.setBounds(highPassArea);
+	lowPassSlider.setBounds(lowPassArea);
+
 	lowFreqSlider.showLabel(*this);
 	lowGainSlider.showLabel(*this);
 	lowQSlider.showLabel(*this);
@@ -407,6 +464,9 @@ void J13AudioProcessorEditor::resized()
 	highFreqSlider.showLabel(*this);
 	highGainSlider.showLabel(*this);
 	highQSlider.showLabel(*this);
+
+	highPassSlider.showLabel(*this);
+	lowPassSlider.showLabel(*this);
 }
 
 void J13AudioProcessorEditor::timerCallback()

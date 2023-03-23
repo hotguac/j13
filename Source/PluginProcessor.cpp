@@ -119,6 +119,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 	params.push_back(std::make_unique<juce::AudioParameterBool>("HIGHNORMAL", "High Normal", false));
 	params.push_back(std::make_unique<juce::AudioParameterBool>("HIGHWIDE", "High Wide", false));
 
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHPASS", "High Pass", 20.0f, 250.0f, 100.0f));
+	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWPASS", "Low Pass", 1800.0f, 18000.0f, 16000.0f));
+
 	return { params.begin(), params.end() };
 }
 

@@ -62,8 +62,8 @@ private:
 	jRotary highGainSlider { "Gain" };
 	jRotary highQSlider { "" };
 
-	jRotary lowPassSlider { "LowPass" };
 	jRotary highPassSlider { "HighPass" };
+	jRotary lowPassSlider { "LowPass" };
 
 	// Buttons
 	juce::TextButton lowBump { "Bump" };	// Q = 1.4f
@@ -184,6 +184,9 @@ private:
 	juce::Rectangle<int> highFreqArea;
 	juce::Rectangle<int> highGainArea;
 
+	juce::Rectangle<int> highPassArea;
+	juce::Rectangle<int> lowPassArea;
+
 	// Hidden controls set by button choices
 	juce::Rectangle<int> lowQArea;
 	juce::Rectangle<int> highQArea;
@@ -208,6 +211,18 @@ private:
 	void highBumpClicked();
 	void highNormalClicked();
 	void highWideClicked();
+
+	static juce::String formatValue(double value)
+	{
+		char buffer[100];
+
+		if (abs(value) > 99.9f) {
+			snprintf(buffer, 100, "%6.0f", value);
+			return (juce::String(buffer));
+		}
+
+		return juce::String(value);
+	}
 
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
