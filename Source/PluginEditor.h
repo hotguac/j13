@@ -191,10 +191,22 @@ private:
 	juce::Rectangle<int> lowQArea;
 	juce::Rectangle<int> highQArea;
 
+	// layout helpers
+	int stripWidth;
+	int stripHeight;
+	int controlHeight;
+
 	//
 	void timerCallback() override;
 
 	void layoutSizes();
+	void layoutSections();
+	void layoutInput();
+	void layoutLow();
+	void layoutMid();
+	void layoutHigh();
+	void layoutOutput();
+
 	juce::Rectangle<int> shrinkArea(juce::Rectangle<int> area);
 
 	// Create and attach controls
@@ -232,19 +244,22 @@ private:
 /*
 TODO:
 
-- Freq slider should display and move by 1Hz
-
-
+- Only update plot display when values change
+- Build plot on a seperate canvas and paint to screen when finished 
+- All buttons should have same dimensions
+- Adjust spacing of all controls
+- Draw diagonal  and vertical dividers between low and high mid controls
+- All sliders should snap to repeatable values, i.e. gain should snap to 1.2 and not 1.2123
+- make all buttons 'lit' when selected
 - Add brushed aluminum look to knobs
 - Add 3D look to knobs (top hat viewed directly), with darker edges and shiny middle
-- Modify Input and Output Sections to have Clean; Warm; Bright saturation (xfmr) selection with 'lit' buttons
-- For Mid Peak filters make the Q variable based on the gain, broad at low gain values and tighter at higher gain values
-- Change High and Low Shelf Q to 'lit' buttons choosing normal, broad, or steep
 
 Done-ish:
 - Add brushed aluminum look to GUI background
 - Add low-mid and high-mid peak filters
 - Rearrange controls, left to right, to be Input Section; Low Shelf; Low Mid Peak; Drive Section; High Mid Peak; High Shelf; Output Section
 - Adjust Freq to be restricted to 'sweet' zones and accomadate the new Mid Peak filters.
+- Modify Input and Output Sections to have Clean; Warm; Bright saturation (xfmr) 
+- Change High and Low Shelf Q to buttons choosing normal, broad, or steep
 
 */
