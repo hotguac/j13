@@ -66,6 +66,9 @@ private:
 	jRotary lowPassSlider { "LowPass" };
 
 	// Buttons
+	const int buttonWidth = 64;
+	const int buttonHeight = 30;
+
 	juce::TextButton lowBump { "Bump" };	// Q = 1.4f
 	juce::TextButton lowNormal { "Shelf" }; // Q = 0.7f
 	juce::TextButton lowWide { "Wide" };	// Q = 0.4f
@@ -236,6 +239,8 @@ private:
 		return juce::String(value);
 	}
 
+	juce::Rectangle<int> centerButtonArea(juce::Rectangle<int> buttonArea);
+
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };
@@ -244,10 +249,13 @@ private:
 /*
 TODO:
 
-- Only update plot display when values change
-- Build plot on a seperate canvas and paint to screen when finished 
 - All buttons should have same dimensions
 - Adjust spacing of all controls
+- Build plot on a seperate canvas and paint to screen when finished 
+- Add high and low pass filters to PluginProcessor
+- Hook up shelf, bump. wide buttons to high shelf Q slider
+- Hook up input and out section buttons
+- Only update plot display when values change
 - Draw diagonal  and vertical dividers between low and high mid controls
 - All sliders should snap to repeatable values, i.e. gain should snap to 1.2 and not 1.2123
 - make all buttons 'lit' when selected

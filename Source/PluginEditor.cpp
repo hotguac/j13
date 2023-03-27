@@ -314,6 +314,9 @@ void J13AudioProcessorEditor::layoutSections()
 {
 	plotSection = area.removeFromTop(area.getHeight() / 2.4);
 
+	area.removeFromTop(10);
+	area.removeFromBottom(14);
+
 	inputSection = area.removeFromLeft(area.getWidth() / 5.8f);
 	stripWidth = inputSection.getWidth();
 	stripHeight = inputSection.getHeight();
@@ -330,31 +333,55 @@ void J13AudioProcessorEditor::layoutSections()
 	highOutputDivider = highSection.removeFromRight(4);
 }
 
+juce::Rectangle<int> J13AudioProcessorEditor::centerButtonArea(juce::Rectangle<int> buttonArea)
+{
+	auto x = buttonArea.getX();
+	auto y = buttonArea.getY();
+	auto width = buttonArea.getWidth();
+	auto height = buttonArea.getHeight();
+
+	auto dx = (width - buttonWidth) / 2;
+	auto dy = (height - buttonHeight) / 2;
+	auto dw = width - buttonWidth;
+	auto dh = height - buttonHeight;
+
+	return juce::Rectangle<int>(x + dx, y + dy, width - dw, height - dh);
+}
+
 void J13AudioProcessorEditor::layoutInput()
 {
-	inputSection.removeFromTop(controlHeight / 4);
 	inGainArea = inputSection.removeFromTop(controlHeight);
-	inputCleanArea = inputSection.removeFromTop(controlHeight / 3.2f);
-	inputWarmArea = inputSection.removeFromTop(inputCleanArea.getHeight());
-	inputBrightArea = inputSection.removeFromTop(inputCleanArea.getHeight());
-	inputSection.removeFromTop(controlHeight / 4);
+	driveArea = inputSection.removeFromBottom(controlHeight);
 
-	driveArea = inputSection.removeFromTop(controlHeight);
+	inputSection.removeFromTop(10);
+	inputSection.removeFromBottom(10);
+
+	inputCleanArea = inputSection.removeFromTop(inputSection.getHeight() / 3);
+	inputWarmArea = inputSection.removeFromTop(inputCleanArea.getHeight());
+	inputBrightArea = inputSection;
+
+	inputCleanArea = centerButtonArea(inputCleanArea);
+	inputWarmArea = centerButtonArea(inputWarmArea);
+	inputBrightArea = centerButtonArea(inputBrightArea);
 }
 
 void J13AudioProcessorEditor::layoutLow()
 {
 	lowFreqArea = lowSection.removeFromTop(controlHeight);
-	lowGainArea = lowSection.removeFromTop(controlHeight / 1.05f);
-	lowQArea = lowSection.removeFromTop(controlHeight / 1.1f);
+	lowSection.removeFromTop(6);
 
-	lowNormalArea = lowSection.removeFromTop(lowSection.getHeight() / 3.2f);
+	lowGainArea = lowSection.removeFromTop(controlHeight);
+	lowSection.removeFromTop(6);
+
+	lowSection.removeFromTop(10);
+
+	lowNormalArea = lowSection.removeFromTop(lowSection.getHeight() / 4);
 	lowBumpArea = lowSection.removeFromTop(lowNormalArea.getHeight());
 	lowWideArea = lowSection.removeFromTop(lowNormalArea.getHeight());
 
-	lowNormalArea = shrinkArea(lowNormalArea);
-	lowBumpArea = shrinkArea(lowBumpArea);
-	lowWideArea = shrinkArea(lowWideArea);
+	lowNormalArea = centerButtonArea(lowNormalArea);
+	lowBumpArea = centerButtonArea(lowBumpArea);
+	lowWideArea = centerButtonArea(lowWideArea);
 }
 
 void J13AudioProcessorEditor::layoutMid()
@@ -384,29 +411,49 @@ void J13AudioProcessorEditor::layoutMid()
 void J13AudioProcessorEditor::layoutHigh()
 {
 	highFreqArea = highSection.removeFromTop(controlHeight);
-	highGainArea = highSection.removeFromTop(controlHeight);
-	//highQArea = highSection.removeFromTop(controlHeight);
+	highSection.removeFromTop(6);
 
-	highNormalArea = highSection.removeFromTop(highSection.getHeight() / 3.2f);
+	highGainArea = highSection.removeFromTop(controlHeight);
+	highSection.removeFromTop(6);
+
+	highSection.removeFromTop(10);
+
+	highNormalArea = highSection.removeFromTop(highSection.getHeight() / 4);
 	highBumpArea = highSection.removeFromTop(highNormalArea.getHeight());
 	highWideArea = highSection.removeFromTop(highNormalArea.getHeight());
+
+	highNormalArea = centerButtonArea(highNormalArea);
+	highBumpArea = centerButtonArea(highBumpArea);
+	highWideArea = centerButtonArea(highWideArea);
 }
 
 void J13AudioProcessorEditor::layoutOutput()
 {
-	outputSection.removeFromTop(controlHeight / 2.0f);
 	outGainArea = outputSection.removeFromTop(controlHeight);
-	outputCleanArea = outputSection.removeFromTop(controlHeight / 3.2f);
+	lowPassArea = outputSection.removeFromBottom(controlHeight * 0.9f);
+	outputSection.removeFromBottom(4);
+	highPassArea = outputSection.removeFromBottom(controlHeight * 0.9f);
+	outputSection.removeFromBottom(4);
+	outputSection.removeFromTop(4);
+
+	outputCleanArea = outputSection.removeFromTop(outputSection.getHeight() / 3);
 	outputWarmArea = outputSection.removeFromTop(outputCleanArea.getHeight());
 	outputThickArea = outputSection.removeFromTop(outputCleanArea.getHeight());
 
-	highPassArea = outputSection.removeFromTop(outputSection.getHeight() / 2.0f);
-	lowPassArea = outputSection;
+	outputCleanArea = centerButtonArea(outputCleanArea);
+	outputWarmArea = centerButtonArea(outputWarmArea);
+	outputThickArea = centerButtonArea(outputThickArea);
 }
 
 void J13AudioProcessorEditor::layoutSizes()
 {
 	area = getLocalBounds();
+
+	// shrink for global buffer around edge
+	area.removeFromTop(4);
+	area.removeFromBottom(6);
+	area.removeFromLeft(2);
+	area.removeFromRight(2);
 
 	layoutSections();
 	layoutInput();
@@ -414,10 +461,6 @@ void J13AudioProcessorEditor::layoutSizes()
 	layoutMid();
 	layoutHigh();
 	layoutOutput();
-
-	inputCleanArea.removeFromLeft(22);
-	inputCleanArea.removeFromRight(22);
-	std::cout << "InputClean Button size = " << inputCleanArea.toString() << std::endl;
 }
 
 void J13AudioProcessorEditor::resized()
