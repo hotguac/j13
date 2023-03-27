@@ -63,7 +63,6 @@ J13AudioProcessorEditor::~J13AudioProcessorEditor()
 	highQSlider.setLookAndFeel(nullptr);
 
 	highPassSlider.setLookAndFeel(nullptr);
-	lowPassSlider.setLookAndFeel(nullptr);
 
 	this->setLookAndFeel(nullptr);
 }
@@ -124,6 +123,16 @@ void J13AudioProcessorEditor::createLowControls()
 	lowBump.onClick = [this] { lowBumpClicked(); };
 	lowNormal.onClick = [this] { lowNormalClicked(); };
 	lowWide.onClick = [this] { lowWideClicked(); };
+
+	lowBump.setRadioGroupId(2, juce::NotificationType::sendNotification);
+	lowNormal.setRadioGroupId(2, juce::NotificationType::sendNotification);
+	lowWide.setRadioGroupId(2, juce::NotificationType::sendNotification);
+
+	lowBump.setClickingTogglesState(true);
+	lowNormal.setClickingTogglesState(true);
+	lowWide.setClickingTogglesState(true);
+
+	lowNormal.setToggleState(true, juce::NotificationType::sendNotification);
 
 	lowFreqSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
 	lowFreqSlider.updateText();
@@ -222,21 +231,13 @@ void J13AudioProcessorEditor::createOutputControls()
 	addAndMakeVisible(outputThick);
 
 	highPassSlider.setLookAndFeel(&jLookRes);
-	lowPassSlider.setLookAndFeel(&jLookRes);
-
 	addAndMakeVisible(highPassSlider);
-	addAndMakeVisible(lowPassSlider);
 
 	highPassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHPASS", highPassSlider);
-	lowPassAttachment
-		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWPASS", lowPassSlider);
 
 	highPassSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
-	lowPassSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
-
 	highPassSlider.updateText();
-	lowPassSlider.updateText();
 }
 
 void J13AudioProcessorEditor::paint(juce::Graphics& g)
@@ -353,8 +354,8 @@ void J13AudioProcessorEditor::layoutInput()
 	inGainArea = inputSection.removeFromTop(controlHeight);
 	driveArea = inputSection.removeFromBottom(controlHeight);
 
-	inputSection.removeFromTop(10);
-	inputSection.removeFromBottom(10);
+	inputSection.removeFromTop(14);
+	inputSection.removeFromBottom(14);
 
 	inputCleanArea = inputSection.removeFromTop(inputSection.getHeight() / 3);
 	inputWarmArea = inputSection.removeFromTop(inputCleanArea.getHeight());
@@ -430,15 +431,14 @@ void J13AudioProcessorEditor::layoutHigh()
 void J13AudioProcessorEditor::layoutOutput()
 {
 	outGainArea = outputSection.removeFromTop(controlHeight);
-	lowPassArea = outputSection.removeFromBottom(controlHeight * 0.9f);
-	outputSection.removeFromBottom(4);
-	highPassArea = outputSection.removeFromBottom(controlHeight * 0.9f);
-	outputSection.removeFromBottom(4);
-	outputSection.removeFromTop(4);
+	highPassArea = outputSection.removeFromBottom(controlHeight);
+
+	outputSection.removeFromTop(14);
+	outputSection.removeFromBottom(14);
 
 	outputCleanArea = outputSection.removeFromTop(outputSection.getHeight() / 3);
 	outputWarmArea = outputSection.removeFromTop(outputCleanArea.getHeight());
-	outputThickArea = outputSection.removeFromTop(outputCleanArea.getHeight());
+	outputThickArea = outputSection;
 
 	outputCleanArea = centerButtonArea(outputCleanArea);
 	outputWarmArea = centerButtonArea(outputWarmArea);
@@ -519,7 +519,7 @@ void J13AudioProcessorEditor::resized()
 	highWide.setBounds(highWideArea);
 
 	highPassSlider.setBounds(highPassArea);
-	lowPassSlider.setBounds(lowPassArea);
+	// lowPassSlider.setBounds(lowPassArea);
 
 	lowFreqSlider.showLabel(*this);
 	lowGainSlider.showLabel(*this);
@@ -538,7 +538,7 @@ void J13AudioProcessorEditor::resized()
 	highQSlider.showLabel(*this);
 
 	highPassSlider.showLabel(*this);
-	lowPassSlider.showLabel(*this);
+	// lowPassSlider.showLabel(*this);
 }
 
 void J13AudioProcessorEditor::timerCallback()

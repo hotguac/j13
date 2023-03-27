@@ -212,8 +212,17 @@ void J13AudioProcessor::updateGraph()
 	smoothLowFreq.setTargetValue(lowfreq);
 
 	auto lowNormal = (apvts.getRawParameterValue("LOWNORMAL"))->load();
-	auto lowBump = (apvts.getRawParameterValue("LOWNORMAL"))->load();
-	auto lowWide = (apvts.getRawParameterValue("LOWNORMAL"))->load();
+	auto lowBump = (apvts.getRawParameterValue("LOWBUMP"))->load();
+	auto lowWide = (apvts.getRawParameterValue("LOWWIDE"))->load();
+
+	if (lowBump && (count < 1)) {
+		std::cout << lowNormal << " " << lowBump << " " << lowWide << std::endl;
+		count++;
+	}
+
+	if (lowWide || lowNormal) {
+		count = 0;
+	}
 
 	auto lowq = (apvts.getRawParameterValue("LOWQ"))->load();
 	if (lowq < 0.1f) {

@@ -63,7 +63,6 @@ private:
 	jRotary highQSlider { "" };
 
 	jRotary highPassSlider { "HighPass" };
-	jRotary lowPassSlider { "LowPass" };
 
 	// Buttons
 	const int buttonWidth = 64;
@@ -111,7 +110,6 @@ private:
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highQAttachment;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highPassAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowPassAttachment;
 
 	// Attachments to buttons, used to share with the AudioProcessor
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> inputCleanAttachment;
@@ -188,7 +186,6 @@ private:
 	juce::Rectangle<int> highGainArea;
 
 	juce::Rectangle<int> highPassArea;
-	juce::Rectangle<int> lowPassArea;
 
 	// Hidden controls set by button choices
 	juce::Rectangle<int> lowQArea;
@@ -248,11 +245,8 @@ private:
 
 /*
 TODO:
-
-- All buttons should have same dimensions
-- Adjust spacing of all controls
+- remove low pass filter
 - Build plot on a seperate canvas and paint to screen when finished 
-- Add high and low pass filters to PluginProcessor
 - Hook up shelf, bump. wide buttons to high shelf Q slider
 - Hook up input and out section buttons
 - Only update plot display when values change
@@ -263,11 +257,14 @@ TODO:
 - Add 3D look to knobs (top hat viewed directly), with darker edges and shiny middle
 
 Done-ish:
-- Add brushed aluminum look to GUI background
+- Add high and low pass filters to PluginProcessor
+- Add look to GUI background
 - Add low-mid and high-mid peak filters
 - Rearrange controls, left to right, to be Input Section; Low Shelf; Low Mid Peak; Drive Section; High Mid Peak; High Shelf; Output Section
 - Adjust Freq to be restricted to 'sweet' zones and accomadate the new Mid Peak filters.
 - Modify Input and Output Sections to have Clean; Warm; Bright saturation (xfmr) 
 - Change High and Low Shelf Q to buttons choosing normal, broad, or steep
+- All buttons should have same dimensions
+- Adjust spacing of all controls
 
 */
