@@ -48,7 +48,6 @@ J13AudioProcessorEditor::~J13AudioProcessorEditor()
 
 	lowFreqSlider.setLookAndFeel(nullptr);
 	lowGainSlider.setLookAndFeel(nullptr);
-	lowQSlider.setLookAndFeel(nullptr);
 
 	lowMidFreqSlider.setLookAndFeel(nullptr);
 	lowMidGainSlider.setLookAndFeel(nullptr);
@@ -60,7 +59,6 @@ J13AudioProcessorEditor::~J13AudioProcessorEditor()
 
 	highFreqSlider.setLookAndFeel(nullptr);
 	highGainSlider.setLookAndFeel(nullptr);
-	highQSlider.setLookAndFeel(nullptr);
 
 	highPassSlider.setLookAndFeel(nullptr);
 
@@ -106,8 +104,6 @@ void J13AudioProcessorEditor::createLowControls()
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWFREQ", lowFreqSlider);
 	lowGainAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWGAIN", lowGainSlider);
-	lowQAttachment
-		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWQ", lowQSlider);
 
 	addAndMakeVisible(lowNormal);
 	addAndMakeVisible(lowBump);
@@ -197,7 +193,6 @@ void J13AudioProcessorEditor::createHighControls()
 {
 	highFreqSlider.setLookAndFeel(&jLookGain);
 	highGainSlider.setLookAndFeel(&jLookFreq);
-	highQSlider.setLookAndFeel(&jLookRes);
 
 	addAndMakeVisible(highFreqSlider);
 	addAndMakeVisible(highGainSlider);
@@ -206,8 +201,6 @@ void J13AudioProcessorEditor::createHighControls()
 		audioProcessor.apvts, "HIGHFREQ", highFreqSlider);
 	highGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
 		audioProcessor.apvts, "HIGHGAIN", highGainSlider);
-	highQAttachment
-		= std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHQ", highQSlider);
 
 	addAndMakeVisible(highNormal);
 	addAndMakeVisible(highBump);
@@ -272,43 +265,20 @@ juce::Rectangle<int> J13AudioProcessorEditor::shrinkArea(juce::Rectangle<int> ar
 
 void J13AudioProcessorEditor::lowBumpClicked()
 {
-
-
 	// Almost works but only checked at time of click, need to attach to gain slider
-
-
 	std::cout << "lowBumpClicked" << std::endl;
-	if (lowGainSlider.getValue() < 0.0f) {
-		lowQSlider.setValue(1.4f, juce::NotificationType::sendNotification);
-	} else {
-		lowQSlider.setValue(0.7f, juce::NotificationType::sendNotification);
-	}
-
-	lowBump.setToggleable(true);
-	lowBump.setColour(0, juce::Colours::blue);
-	lowBump.setColour(1, juce::Colours::red);
 }
 
 void J13AudioProcessorEditor::lowNormalClicked()
 {
 	//
 	std::cout << "lowNormalClicked" << std::endl;
-	lowQSlider.setValue(0.7f, juce::NotificationType::sendNotification);
-
-	lowBump.setToggleable(true);
-	lowBump.setColour(0, juce::Colours::blue);
-	lowBump.setColour(1, juce::Colours::red);
 }
 
 void J13AudioProcessorEditor::lowWideClicked()
 {
 	//
 	std::cout << "lowWideClicked" << std::endl;
-	lowQSlider.setValue(0.4f, juce::NotificationType::sendNotification);
-
-	lowBump.setToggleable(true);
-	lowBump.setColour(0, juce::Colours::blue);
-	lowBump.setColour(1, juce::Colours::red);
 }
 
 void J13AudioProcessorEditor::layoutSections()
@@ -496,7 +466,6 @@ void J13AudioProcessorEditor::resized()
 
 	lowFreqSlider.setBounds(lowFreqArea);
 	lowGainSlider.setBounds(lowGainArea);
-	lowQSlider.setBounds(lowQArea);
 
 	lowNormal.setBounds(lowNormalArea);
 	lowBump.setBounds(lowBumpArea);
@@ -512,18 +481,15 @@ void J13AudioProcessorEditor::resized()
 
 	highFreqSlider.setBounds(highFreqArea);
 	highGainSlider.setBounds(highGainArea);
-	highQSlider.setBounds(highQArea);
 
 	highNormal.setBounds(highNormalArea);
 	highBump.setBounds(highBumpArea);
 	highWide.setBounds(highWideArea);
 
 	highPassSlider.setBounds(highPassArea);
-	// lowPassSlider.setBounds(lowPassArea);
 
 	lowFreqSlider.showLabel(*this);
 	lowGainSlider.showLabel(*this);
-	lowQSlider.showLabel(*this);
 
 	lowMidFreqSlider.showLabel(*this);
 	lowMidGainSlider.showLabel(*this);
@@ -535,10 +501,8 @@ void J13AudioProcessorEditor::resized()
 
 	highFreqSlider.showLabel(*this);
 	highGainSlider.showLabel(*this);
-	highQSlider.showLabel(*this);
 
 	highPassSlider.showLabel(*this);
-	// lowPassSlider.showLabel(*this);
 }
 
 void J13AudioProcessorEditor::timerCallback()

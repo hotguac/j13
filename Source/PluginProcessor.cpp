@@ -97,7 +97,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 20.0f, 220.0f, 100.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", -20.0f, 20.0f, 0.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWQ", "Low Resonance", 0.3f, 1.8f, 0.7f));
 
 	params.push_back(std::make_unique<juce::AudioParameterBool>("LOWBUMP", "Low Bump", false));
 	params.push_back(std::make_unique<juce::AudioParameterBool>("LOWNORMAL", "Low Normal", false));
@@ -113,14 +112,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHFREQ", "High Freq", 4000.0f, 20000.0f, 4000.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHGAIN", "High Gain", -20.0f, 20.0f, 0.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHQ", "High Resonance", 0.3f, 1.8f, 0.7f));
 
 	params.push_back(std::make_unique<juce::AudioParameterBool>("HIGHBUMP", "High Bump", false));
 	params.push_back(std::make_unique<juce::AudioParameterBool>("HIGHNORMAL", "High Normal", false));
 	params.push_back(std::make_unique<juce::AudioParameterBool>("HIGHWIDE", "High Wide", false));
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHPASS", "High Pass", 20.0f, 250.0f, 100.0f));
-	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWPASS", "Low Pass", 1800.0f, 18000.0f, 16000.0f));
 
 	return { params.begin(), params.end() };
 }
@@ -215,20 +212,17 @@ void J13AudioProcessor::updateGraph()
 	auto lowBump = (apvts.getRawParameterValue("LOWBUMP"))->load();
 	auto lowWide = (apvts.getRawParameterValue("LOWWIDE"))->load();
 
-	if (lowBump && (count < 1)) {
-		std::cout << lowNormal << " " << lowBump << " " << lowWide << std::endl;
-		count++;
+	float lowQ;
+
+	if (lowBump) {
+		lowQ = 1.4f;
+	} else if (lowWide) {
+		lowQ = 0.4f;
+	} else {
+		lowQ = 0.7f;
 	}
 
-	if (lowWide || lowNormal) {
-		count = 0;
-	}
-
-	auto lowq = (apvts.getRawParameterValue("LOWQ"))->load();
-	if (lowq < 0.1f) {
-		lowq = 0.1f;
-	}
-	smoothLowQ.setTargetValue(lowq);
+	smoothLowQ.setTargetValue(lowQ);
 
 	auto lowgainDb = (apvts.getRawParameterValue("LOWGAIN"))->load();
 	auto lowgain = juce::Decibels::decibelsToGain(lowgainDb);
@@ -307,11 +301,9 @@ void J13AudioProcessor::updateGraph()
 	auto highfreq = (apvts.getRawParameterValue("HIGHFREQ"))->load();
 	smoothHighFreq.setTargetValue(highfreq);
 
-	auto highq = (apvts.getRawParameterValue("HIGHQ"))->load();
-	if (highq < 0.1f) {
-		highq = 0.1f;
-	}
-	smoothHighQ.setTargetValue(highq);
+	auto highQ = 0.7f;
+
+	smoothHighQ.setTargetValue(highQ);
 
 	auto highgainDb = (apvts.getRawParameterValue("HIGHGAIN"))->load();
 	auto highgain = juce::Decibels::decibelsToGain(highgainDb);

@@ -48,7 +48,6 @@ private:
 
 	jRotary lowFreqSlider { "Freq" };
 	jRotary lowGainSlider { "Gain" };
-	jRotary lowQSlider { "" };
 
 	jRotary lowMidFreqSlider { "Freq" };
 	jRotary lowMidGainSlider { "Gain" };
@@ -60,7 +59,6 @@ private:
 
 	jRotary highFreqSlider { "Freq" };
 	jRotary highGainSlider { "Gain" };
-	jRotary highQSlider { "" };
 
 	jRotary highPassSlider { "HighPass" };
 
@@ -95,7 +93,6 @@ private:
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowFreqAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowGainAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowQAttachment;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowMidFreqAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowMidGainAttachment;
@@ -107,7 +104,6 @@ private:
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highFreqAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highGainAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highQAttachment;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highPassAttachment;
 
@@ -186,10 +182,6 @@ private:
 	juce::Rectangle<int> highGainArea;
 
 	juce::Rectangle<int> highPassArea;
-
-	// Hidden controls set by button choices
-	juce::Rectangle<int> lowQArea;
-	juce::Rectangle<int> highQArea;
 
 	// layout helpers
 	int stripWidth;
