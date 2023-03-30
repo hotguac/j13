@@ -67,11 +67,11 @@ private:
 	const int buttonHeight = 30;
 
 	juce::TextButton lowBump { "Bump" };	// Q = 1.4f
-	juce::TextButton lowNormal { "Shelf" }; // Q = 0.7f
+	juce::TextButton lowShelf { "Shelf" };	// Q = 0.7f
 	juce::TextButton lowWide { "Wide" };	// Q = 0.4f
 
 	juce::TextButton highBump { "Bump" };	 // Q = 1.4f
-	juce::TextButton highNormal { "Shelf" }; // Q = 0.7f
+	juce::TextButton highShelf { "Shelf" };	 // Q = 0.7f
 	juce::TextButton highWide { "Wide" };	 // Q = 0.4f
 
 	juce::TextButton inputClean { "Clean" };
@@ -116,11 +116,11 @@ private:
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputWarmAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputBrightAttachment;
 
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowNormalAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowShelfAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowBumpAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowWideAttachment;
 
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highNormalAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highShelfAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highBumpAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highWideAttachment;
 
@@ -146,6 +146,10 @@ private:
 	juce::Rectangle<int> midHighDivider;
 	juce::Rectangle<int> highOutputDivider;
 
+	juce::Rectangle<int> midBottomDivider;
+	juce::Rectangle<int> midMiddleDivider;
+	juce::Rectangle<int> midTopDivider;
+
 	// Individual controls
 	juce::Rectangle<int> inGainArea;
 	juce::Rectangle<int> inputCleanArea;
@@ -162,11 +166,11 @@ private:
 	juce::Rectangle<int> lowFreqArea;
 	juce::Rectangle<int> lowGainArea;
 
-	juce::Rectangle<int> lowNormalArea;
+	juce::Rectangle<int> lowShelfArea;
 	juce::Rectangle<int> lowBumpArea;
 	juce::Rectangle<int> lowWideArea;
 
-	juce::Rectangle<int> highNormalArea;
+	juce::Rectangle<int> highShelfArea;
 	juce::Rectangle<int> highBumpArea;
 	juce::Rectangle<int> highWideArea;
 
@@ -237,18 +241,20 @@ private:
 
 /*
 TODO:
-- remove low pass filter
 - Build plot on a seperate canvas and paint to screen when finished 
-- Hook up shelf, bump. wide buttons to high shelf Q slider
 - Hook up input and out section buttons
 - Only update plot display when values change
-- Draw diagonal  and vertical dividers between low and high mid controls
 - All sliders should snap to repeatable values, i.e. gain should snap to 1.2 and not 1.2123
 - make all buttons 'lit' when selected
 - Add brushed aluminum look to knobs
 - Add 3D look to knobs (top hat viewed directly), with darker edges and shiny middle
 
 Done-ish:
+- Draw dividers between low and high mid controls
+- Rotate high-mid controls to mirror low-mid
+- Lower high-mid frequency range to 1000 Hz
+- Hook up shelf, bump. wide buttons to high shelf Q slider
+- remove low pass filter
 - Add high and low pass filters to PluginProcessor
 - Add look to GUI background
 - Add low-mid and high-mid peak filters
