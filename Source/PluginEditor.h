@@ -114,7 +114,7 @@ private:
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputCleanAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputWarmAttachment;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputBrightAttachment;
+	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> outputThickAttachment;
 
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowShelfAttachment;
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> lowBumpAttachment;
@@ -212,14 +212,6 @@ private:
 	void createHighControls();
 	void createOutputControls();
 
-	void lowBumpClicked();
-	void lowNormalClicked();
-	void lowWideClicked();
-
-	void highBumpClicked();
-	void highNormalClicked();
-	void highWideClicked();
-
 	static juce::String formatValue(double value)
 	{
 		char buffer[100];
@@ -234,6 +226,7 @@ private:
 
 	juce::Rectangle<int> centerButtonArea(juce::Rectangle<int> buttonArea);
 
+	enum JRadioGroups { input = 1, low = 2, high = 3, output = 4 };
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };
@@ -241,10 +234,9 @@ private:
 
 /*
 TODO:
-- Build plot on a seperate canvas and paint to screen when finished 
 - Hook up input and out section buttons
+- Build plot on a seperate canvas and paint to screen when finished 
 - Only update plot display when values change
-- All sliders should snap to repeatable values, i.e. gain should snap to 1.2 and not 1.2123
 - make all buttons 'lit' when selected
 - Add brushed aluminum look to knobs
 - Add 3D look to knobs (top hat viewed directly), with darker edges and shiny middle

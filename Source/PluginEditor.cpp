@@ -83,6 +83,21 @@ void J13AudioProcessorEditor::createInputControls()
 	addAndMakeVisible(inputWarm);
 	addAndMakeVisible(inputBright);
 
+	inputClean.setRadioGroupId(input, juce::NotificationType::sendNotification);
+	inputWarm.setRadioGroupId(input, juce::NotificationType::sendNotification);
+	inputBright.setRadioGroupId(input, juce::NotificationType::sendNotification);
+
+	inputClean.setClickingTogglesState(true);
+	inputWarm.setClickingTogglesState(true);
+	inputBright.setClickingTogglesState(true);
+
+	inputCleanAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "INCLEAN", inputClean);
+	inputWarmAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "INWARM", inputWarm);
+	inputBrightAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "INBRIGHT", inputBright);
+
 	inGainSlider.textFromValueFunction = [](double value) { return juce::String(value, 1); };
 	driveSlider.textFromValueFunction = [](double value) { return juce::String(value, 1); };
 
@@ -115,13 +130,9 @@ void J13AudioProcessorEditor::createLowControls()
 	lowWideAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "LOWWIDE", lowWide);
 
-	lowBump.onClick = [this] { lowBumpClicked(); };
-	lowShelf.onClick = [this] { lowNormalClicked(); };
-	lowWide.onClick = [this] { lowWideClicked(); };
-
-	lowBump.setRadioGroupId(2, juce::NotificationType::sendNotification);
-	lowShelf.setRadioGroupId(2, juce::NotificationType::sendNotification);
-	lowWide.setRadioGroupId(2, juce::NotificationType::sendNotification);
+	lowBump.setRadioGroupId(low, juce::NotificationType::sendNotification);
+	lowShelf.setRadioGroupId(low, juce::NotificationType::sendNotification);
+	lowWide.setRadioGroupId(low, juce::NotificationType::sendNotification);
 
 	lowBump.setClickingTogglesState(true);
 	lowShelf.setClickingTogglesState(true);
@@ -212,9 +223,9 @@ void J13AudioProcessorEditor::createHighControls()
 	highWideAttachment
 		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "HIGHWIDE", highWide);
 
-	highBump.setRadioGroupId(3, juce::NotificationType::sendNotification);
-	highShelf.setRadioGroupId(3, juce::NotificationType::sendNotification);
-	highWide.setRadioGroupId(3, juce::NotificationType::sendNotification);
+	highBump.setRadioGroupId(high, juce::NotificationType::sendNotification);
+	highShelf.setRadioGroupId(high, juce::NotificationType::sendNotification);
+	highWide.setRadioGroupId(high, juce::NotificationType::sendNotification);
 
 	highBump.setClickingTogglesState(true);
 	highShelf.setClickingTogglesState(true);
@@ -238,6 +249,21 @@ void J13AudioProcessorEditor::createOutputControls()
 	addAndMakeVisible(outputClean);
 	addAndMakeVisible(outputWarm);
 	addAndMakeVisible(outputThick);
+
+	outputClean.setRadioGroupId(output, juce::NotificationType::sendNotification);
+	outputWarm.setRadioGroupId(output, juce::NotificationType::sendNotification);
+	outputThick.setRadioGroupId(output, juce::NotificationType::sendNotification);
+
+	outputClean.setClickingTogglesState(true);
+	outputWarm.setClickingTogglesState(true);
+	outputThick.setClickingTogglesState(true);
+
+	outputCleanAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "OUTCLEAN", outputClean);
+	outputWarmAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "OUTWARM", outputWarm);
+	outputThickAttachment
+		= std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "OUTTHICK", outputThick);
 
 	highPassSlider.setLookAndFeel(&jLookRes);
 	addAndMakeVisible(highPassSlider);
@@ -280,24 +306,6 @@ juce::Rectangle<int> J13AudioProcessorEditor::shrinkArea(juce::Rectangle<int> ar
 	area.setTop(area.getY() + 2);
 
 	return area;
-}
-
-void J13AudioProcessorEditor::lowBumpClicked()
-{
-	// Almost works but only checked at time of click, need to attach to gain slider
-	std::cout << "lowBumpClicked" << std::endl;
-}
-
-void J13AudioProcessorEditor::lowNormalClicked()
-{
-	//
-	std::cout << "lowNormalClicked" << std::endl;
-}
-
-void J13AudioProcessorEditor::lowWideClicked()
-{
-	//
-	std::cout << "lowWideClicked" << std::endl;
 }
 
 void J13AudioProcessorEditor::layoutSections()

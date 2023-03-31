@@ -42,36 +42,59 @@ public:
 
 			for (int sampleNum = 0; sampleNum < samplesPerBlock; ++sampleNum) {
 				float x = channelData[sampleNum];
-				// float Saturate(float input, float depth) { return input *
-				// (1.0-depth+depth*(2.0-abs(input))) } channelData[sampleNum] =
-				// std::tanh((std::tanh(x) + (0.9f * x))) + (0.2f * x);
 
-
-				/*
-                a=0.2*tanh(x)
-                b=0.3*sin(x)
-                c=1+M where 0.7<=M<=2
-                y=tanh((2a+2b+xm)/c)*0.5 + ((a+b+0.5*xM)/c)
-                
-                */
-				auto a = 0.2f * tanh(x);
-				auto b = 0.3f * sin(x);
-				auto M = 2;
-
-				channelData[sampleNum] = 0.5f * tanh(2 * (a + b) / M) + (a + b + x) / M;
-				/*
-				if (x >= 0.0f) {
-					channelData[sampleNum] = std::tanh(x) + (x * 0.25);
-				} else {
-					channelData[sampleNum] = (0.8f * std::tanh(x)) + (x * 0.25);
+				switch (activeType) {
+				case clean:
+					break; // leave sample unchanged
+				case warm:
+					channelData[sampleNum] = doWarm(channelData[sampleNum]);
+					break;
+				case bright:
+					channelData[sampleNum] = doBright(channelData[sampleNum]);
+					break;
+				case thick:
+					channelData[sampleNum] = doThick(channelData[sampleNum]);
+					break;
 				}
-*/
 			}
 		}
 	}
 
 	void reset() override { }
 
+	enum SaturationType { clean = 0, warm = 1, bright = 2, thick = 3 };
+
+	void setSaturationType(SaturationType sType) { activeType = sType; }
+
+	SaturationType getSaturationType() { return activeType; }
+
 private:
 	int samplesPerBlock;
+	SaturationType activeType = clean;
+
+	float doBright(float x)
+	{
+		// possible function, needs tested/tweaked
+		if (x >= 0.0f) {
+			return std::tanh(x) + (x * 0.25);
+		} else {
+			return (0.8f * std::tanh(x)) + (x * 0.25);
+		}
+	}
+
+	float doThick(float x)
+	{
+		// possible function, needs tested/tweaked
+		return tanh(x);
+	}
+
+	float doWarm(float x)
+	{
+		// probable function, needs tested/tweaked
+		auto a = 0.2f * tanh(x);
+		auto b = 0.3f * sin(x);
+		auto M = 2;
+
+		return 0.5f * tanh(2 * (a + b) / M) + (a + b + x) / M;
+	}
 };

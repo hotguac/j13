@@ -86,14 +86,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("INGAIN", "Gain", -12.0f, 12.0f, 0.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive", -12.0f, 12.0f, 0.0f));
-	params.push_back(std::make_unique<juce::AudioParameterBool>("INPUTCLEAN", "Input Clean", false));
-	params.push_back(std::make_unique<juce::AudioParameterBool>("INPUTWARM", "Input Warm", false));
-	params.push_back(std::make_unique<juce::AudioParameterBool>("INPUTBRIGHT", "Input Bright", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("INCLEAN", "Input Clean", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("INWARM", "Input Warm", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("INBRIGHT", "Input Bright", false));
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("OUTGAIN", "Output", -12.0f, 12.0f, 0.0f));
-	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTPUTCLEAN", "Output Clean", false));
-	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTPUTWARM", "Output Warm", false));
-	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTPUTTHICK", "Output Thick", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTCLEAN", "Output Clean", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTWARM", "Output Warm", false));
+	params.push_back(std::make_unique<juce::AudioParameterBool>("OUTTHICK", "Output Thick", false));
 
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWFREQ", "Low Freq", 20.0f, 220.0f, 100.0f));
 	params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWGAIN", "Low Gain", -20.0f, 20.0f, 0.0f));
@@ -203,6 +203,32 @@ void J13AudioProcessor::updateGraph()
 
 	updateGain("OUTGAIN", &smoothOutGain, outputGainNode);
 	smoothOutGain.skip(skipSize);
+
+	//-------------------------------------------------------------
+	auto inClean = (apvts.getRawParameterValue("INCLEAN"))->load();
+	auto inWarm = (apvts.getRawParameterValue("INWARM"))->load();
+	auto inBright = (apvts.getRawParameterValue("INBRIGHT"))->load();
+
+	if (inClean) {
+		((SaturationProcessor*)inSaturationNode.get()->getProcessor())->setSaturationType(SaturationProcessor::clean);
+	} else if (inWarm) {
+		((SaturationProcessor*)inSaturationNode.get()->getProcessor())->setSaturationType(SaturationProcessor::warm);
+	} else {
+		((SaturationProcessor*)inSaturationNode.get()->getProcessor())->setSaturationType(SaturationProcessor::bright);
+	}
+
+	//-------------------------------------------------------------
+	auto outClean = (apvts.getRawParameterValue("OUTCLEAN"))->load();
+	auto outWarm = (apvts.getRawParameterValue("OUTWARM"))->load();
+	auto outThick = (apvts.getRawParameterValue("OUTTHICK"))->load();
+
+	if (outClean) {
+		((SaturationProcessor*)outSaturationNode.get()->getProcessor())->setSaturationType(SaturationProcessor::clean);
+	} else if (outWarm) {
+		((SaturationProcessor*)outSaturationNode.get()->getProcessor())->setSaturationType(SaturationProcessor::warm);
+	} else {
+		((SaturationProcessor*)outSaturationNode.get()->getProcessor())->setSaturationType(SaturationProcessor::thick);
+	}
 
 	//-------------------------------------------------------------
 	auto lowfreq = (apvts.getRawParameterValue("LOWFREQ"))->load();
