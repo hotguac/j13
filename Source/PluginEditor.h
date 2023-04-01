@@ -234,6 +234,7 @@ private:
 
 /*
 TODO:
+- Hook up high pass filter
 - Hook up input and out section buttons
 - Build plot on a seperate canvas and paint to screen when finished 
 - Only update plot display when values change

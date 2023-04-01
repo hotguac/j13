@@ -30,6 +30,8 @@ public:
 		auto totalNumInputChannels = getTotalNumInputChannels();
 		auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+		setFunction();
+
 		// In case we have more outputs than inputs, this code clears any output
 		// channels that didn't contain input data, (because these aren't
 		for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
@@ -42,20 +44,7 @@ public:
 
 			for (int sampleNum = 0; sampleNum < samplesPerBlock; ++sampleNum) {
 				float x = channelData[sampleNum];
-
-				switch (activeType) {
-				case clean:
-					break; // leave sample unchanged
-				case warm:
-					channelData[sampleNum] = doWarm(channelData[sampleNum]);
-					break;
-				case bright:
-					channelData[sampleNum] = doBright(channelData[sampleNum]);
-					break;
-				case thick:
-					channelData[sampleNum] = doThick(channelData[sampleNum]);
-					break;
-				}
+				channelData[sampleNum] = fn(x);
 			}
 		}
 	}
@@ -72,29 +61,35 @@ private:
 	int samplesPerBlock;
 	SaturationType activeType = clean;
 
-	float doBright(float x)
+	float (*fn)(float);
+	void setFunction()
 	{
-		// possible function, needs tested/tweaked
-		if (x >= 0.0f) {
-			return std::tanh(x) + (x * 0.25);
-		} else {
-			return (0.8f * std::tanh(x)) + (x * 0.25);
+		// possible functions, needs tested/tweaked
+		switch (activeType) {
+		case clean:
+			fn = [](float x) { return x; };
+			break;
+		case warm:
+			fn = [](float x) {
+				auto a = 0.2f * tanhf(x);
+				auto b = 0.3f * sinf(x);
+				auto M = 2;
+
+				return 0.5f * tanhf(2 * (a + b) / M) + (a + b + x) / M;
+			};
+			break;
+		case bright:
+			fn = [](float x) {
+				if (x >= 0.0f) {
+					return tanhf(x) + (x * 0.25f);
+				} else {
+					return (0.8f * tanhf(x)) + (x * 0.25f);
+				}
+			};
+			break;
+		case thick:
+			fn = [](float x) { return tanhf(x); };
+			break;
 		}
-	}
-
-	float doThick(float x)
-	{
-		// possible function, needs tested/tweaked
-		return tanh(x);
-	}
-
-	float doWarm(float x)
-	{
-		// probable function, needs tested/tweaked
-		auto a = 0.2f * tanh(x);
-		auto b = 0.3f * sin(x);
-		auto M = 2;
-
-		return 0.5f * tanh(2 * (a + b) / M) + (a + b + x) / M;
 	}
 };
