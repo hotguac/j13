@@ -28,6 +28,11 @@ public:
 		filter.prepare(spec);
 	}
 
+	void updateSettings(int sampleRate, float freq)
+	{
+		*filter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, freq);
+	}
+
 	void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
 	{
 		juce::dsp::AudioBlock<float> block(buffer);

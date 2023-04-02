@@ -69,6 +69,7 @@ private:
 	Node::Ptr driveOffsetNode;
 	Node::Ptr outputGainNode;
 
+	Node::Ptr highPassNode;
 	Node::Ptr highShelfNode;
 	Node::Ptr lowShelfNode;
 
@@ -88,6 +89,8 @@ private:
 	juce::SmoothedValue<float> smoothInGain { 1.0f };
 	juce::SmoothedValue<float> smoothDrive { 1.0f };
 	juce::SmoothedValue<float> smoothOutGain { 1.0f };
+
+	juce::SmoothedValue<float> smoothHighPass { 1.0f };
 
 	juce::SmoothedValue<float> smoothLowFreq { 100.0f };
 	juce::SmoothedValue<float> smoothLowQ { 0.7f };

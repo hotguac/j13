@@ -173,6 +173,7 @@ void J13AudioProcessor::initialiseGraph()
 	highMidPeakNode = mainProcessor->addNode(std::make_unique<PeakProcessor>());
 	lowMidPeakNode = mainProcessor->addNode(std::make_unique<PeakProcessor>());
 	lowShelfNode = mainProcessor->addNode(std::make_unique<LowShelfProcessor>());
+	highPassNode = mainProcessor->addNode(std::make_unique<HighPassProcessor>());
 
 	connectAudioNodes();
 	connectMidiNodes();
@@ -199,6 +200,7 @@ void J13AudioProcessor::updateGraph()
 	smoothInGain.skip(skipSize);
 
 	updateGain("DRIVE", &smoothDrive, driveNode);
+	((GainProcessor*)driveOffsetNode.get()->getProcessor())->updateGain(2.0f - smoothDrive.getCurrentValue());
 	smoothDrive.skip(skipSize);
 
 	updateGain("OUTGAIN", &smoothOutGain, outputGainNode);
@@ -364,6 +366,15 @@ void J13AudioProcessor::updateGraph()
 
 	auto x = ((HighShelfProcessor*)highShelfNode.get()->getProcessor());
 	auto y = x->getBypassParameter();
+
+	//-------------------------------------------------------------
+	//-------------------------------------------------------------
+	auto highPassFreq = (apvts.getRawParameterValue("HIGHPASS"))->load();
+	smoothHighPass.setTargetValue(highPassFreq);
+
+	((HighPassProcessor*)highPassNode.get()->getProcessor())->updateSettings(sampleRate, smoothHighPass.getNextValue());
+
+	smoothHighPass.skip(getBlockSize() - 1);
 }
 
 juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)
@@ -423,7 +434,9 @@ void J13AudioProcessor::connectAudioNodes()
 
 		mainProcessor->addConnection({ { outputGainNode->nodeID, channel }, { driveOffsetNode->nodeID, channel } });
 
-		mainProcessor->addConnection({ { driveOffsetNode->nodeID, channel }, { audioOutputNode->nodeID, channel } });
+		mainProcessor->addConnection({ { driveOffsetNode->nodeID, channel }, { highPassNode->nodeID, channel } });
+
+		mainProcessor->addConnection({ { highPassNode->nodeID, channel }, { audioOutputNode->nodeID, channel } });
 	}
 }
 
