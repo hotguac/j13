@@ -124,7 +124,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout J13AudioProcessor::createPar
 
 void J13AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	J13AudioProcessor::sampleRate = sampleRate;
+	J13AudioProcessor::sampleRateX = sampleRate;
 
 	mainProcessor->setPlayConfigDetails(getMainBusNumInputChannels(), getMainBusNumOutputChannels(), sampleRate, samplesPerBlock);
 	mainProcessor->prepareToPlay(sampleRate, samplesPerBlock);
@@ -209,7 +209,7 @@ void J13AudioProcessor::updateGraph()
 	//-------------------------------------------------------------
 	auto inClean = (apvts.getRawParameterValue("INCLEAN"))->load();
 	auto inWarm = (apvts.getRawParameterValue("INWARM"))->load();
-	auto inBright = (apvts.getRawParameterValue("INBRIGHT"))->load();
+	// auto inBright = (apvts.getRawParameterValue("INBRIGHT"))->load();
 
 	if (inClean) {
 		((SaturationProcessor*)inSaturationNode.get()->getProcessor())->setSaturationType(SaturationProcessor::clean);
@@ -222,7 +222,7 @@ void J13AudioProcessor::updateGraph()
 	//-------------------------------------------------------------
 	auto outClean = (apvts.getRawParameterValue("OUTCLEAN"))->load();
 	auto outWarm = (apvts.getRawParameterValue("OUTWARM"))->load();
-	auto outThick = (apvts.getRawParameterValue("OUTTHICK"))->load();
+	// auto outThick = (apvts.getRawParameterValue("OUTTHICK"))->load();
 
 	if (outClean) {
 		((SaturationProcessor*)outSaturationNode.get()->getProcessor())->setSaturationType(SaturationProcessor::clean);
@@ -245,7 +245,7 @@ void J13AudioProcessor::updateGraph()
 
 	smoothLowGain.setTargetValue(lowgain);
 
-	auto lowShelf = (apvts.getRawParameterValue("LOWSHELF"))->load();
+	// auto lowShelf = (apvts.getRawParameterValue("LOWSHELF"))->load();
 	auto lowBump = (apvts.getRawParameterValue("LOWBUMP"))->load();
 	auto lowWide = (apvts.getRawParameterValue("LOWWIDE"))->load();
 
@@ -266,7 +266,7 @@ void J13AudioProcessor::updateGraph()
 	smoothLowQ.setTargetValue(lowQ);
 
 	((LowShelfProcessor*)lowShelfNode.get()->getProcessor())
-		->updateSettings(sampleRate, smoothLowFreq.getNextValue(), smoothLowQ.getNextValue(), smoothLowGain.getNextValue());
+		->updateSettings(sampleRateX, smoothLowFreq.getNextValue(), smoothLowQ.getNextValue(), smoothLowGain.getNextValue());
 
 	smoothLowFreq.skip(getBlockSize() - 1);
 	smoothLowQ.skip(getBlockSize() - 1);
@@ -294,7 +294,7 @@ void J13AudioProcessor::updateGraph()
 
 	((PeakProcessor*)lowMidPeakNode.get()->getProcessor())
 		->updateSettings(
-			sampleRate, smoothLowMidFreq.getNextValue(), smoothLowMidQ.getNextValue(), smoothLowMidGain.getNextValue());
+			sampleRateX, smoothLowMidFreq.getNextValue(), smoothLowMidQ.getNextValue(), smoothLowMidGain.getNextValue());
 
 	smoothLowMidFreq.skip(getBlockSize() - 1);
 	smoothLowMidQ.skip(getBlockSize() - 1);
@@ -322,7 +322,7 @@ void J13AudioProcessor::updateGraph()
 
 	((PeakProcessor*)highMidPeakNode.get()->getProcessor())
 		->updateSettings(
-			sampleRate, smoothHighMidFreq.getNextValue(), smoothHighMidQ.getNextValue(), smoothHighMidGain.getNextValue());
+			sampleRateX, smoothHighMidFreq.getNextValue(), smoothHighMidQ.getNextValue(), smoothHighMidGain.getNextValue());
 
 	smoothHighMidFreq.skip(getBlockSize() - 1);
 	smoothHighMidQ.skip(getBlockSize() - 1);
@@ -333,7 +333,7 @@ void J13AudioProcessor::updateGraph()
 	auto highfreq = (apvts.getRawParameterValue("HIGHFREQ"))->load();
 	smoothHighFreq.setTargetValue(highfreq);
 
-	auto highShelf = (apvts.getRawParameterValue("HIGHSHELF"))->load();
+	// auto highShelf = (apvts.getRawParameterValue("HIGHSHELF"))->load();
 	auto highBump = (apvts.getRawParameterValue("HIGHBUMP"))->load();
 	auto highWide = (apvts.getRawParameterValue("HIGHWIDE"))->load();
 
@@ -357,22 +357,22 @@ void J13AudioProcessor::updateGraph()
 	smoothHighGain.setTargetValue(highgain);
 
 	((HighShelfProcessor*)highShelfNode.get()->getProcessor())
-		->updateSettings(sampleRate, smoothHighFreq.getNextValue(), smoothHighQ.getNextValue(), smoothHighGain.getNextValue());
+		->updateSettings(sampleRateX, smoothHighFreq.getNextValue(), smoothHighQ.getNextValue(), smoothHighGain.getNextValue());
 
 	smoothHighFreq.skip(getBlockSize() - 1);
 	smoothHighQ.skip(getBlockSize() - 1);
 	smoothHighGain.skip(getBlockSize() - 1);
 
 
-	auto x = ((HighShelfProcessor*)highShelfNode.get()->getProcessor());
-	auto y = x->getBypassParameter();
+	// auto x = ((HighShelfProcessor*)highShelfNode.get()->getProcessor());
+	// auto y = x->getBypassParameter();
 
 	//-------------------------------------------------------------
 	//-------------------------------------------------------------
 	auto highPassFreq = (apvts.getRawParameterValue("HIGHPASS"))->load();
 	smoothHighPass.setTargetValue(highPassFreq);
 
-	((HighPassProcessor*)highPassNode.get()->getProcessor())->updateSettings(sampleRate, smoothHighPass.getNextValue());
+	((HighPassProcessor*)highPassNode.get()->getProcessor())->updateSettings(sampleRateX, smoothHighPass.getNextValue());
 
 	smoothHighPass.skip(getBlockSize() - 1);
 }
@@ -388,6 +388,8 @@ juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)
 		node = highMidPeakNode.get();
 	} else if (filterNum == 3) {
 		node = highShelfNode.get();
+	} else if (filterNum == 4) {
+		node = highPassNode.get();
 	} else {
 		return nullptr;
 	}
@@ -406,6 +408,8 @@ juce::dsp::IIR::Coefficients<float>* J13AudioProcessor::getCoeffs(int filterNum)
 		return ((PeakProcessor*)proc)->getCoeffs();
 	} else if (filterNum == 3) {
 		return ((HighShelfProcessor*)proc)->getCoeffs();
+	} else if (filterNum == 4) {
+		return ((HighPassProcessor*)proc)->getCoeffs();
 	}
 
 	return nullptr;

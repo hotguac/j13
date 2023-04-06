@@ -17,11 +17,7 @@
 */
 class FreqPlotter : public juce::Component {
 public:
-	FreqPlotter()
-	{
-		setfrequencyRange(20.0f, 20000.0f);
-		setMagnitudeMax(20.0f);
-	}
+	FreqPlotter() { setfrequencyRange(20.0f, 20000.0f); }
 
 	~FreqPlotter() override { }
 
@@ -150,9 +146,9 @@ private:
 
 	float frequencyToGraphX(float frequency)
 	{
-		auto logMin = log10(minFrequency / minFrequency); //  ==>> graphX
+		// auto logMin = log10(minFrequency / minFrequency); //  ==>> graphX
 		auto logMax = log10(maxFrequency / minFrequency); //  ==>> graphX + graphWidth
-		auto logFreq = log10(frequency / minFrequency);
+		// auto logFreq = log10(frequency / minFrequency);
 
 		auto xMin = graphX;
 		auto xMax = graphX + graphWidth;
@@ -239,8 +235,8 @@ private:
 		top.addXY(2.0f, -(fontHeight / 2.1f));
 
 		auto bot = top;
-		float fontWidth = font.getStringWidthFloat("-20dB");
-		bot.addXY(fontWidth + 6, fontHeight + 4);
+		float fWidth = font.getStringWidthFloat("-20dB");
+		bot.addXY(fWidth + 6, fontHeight + 4);
 
 		juce::Rectangle<float> mark(top, bot);
 
@@ -426,8 +422,6 @@ private:
 	}
 
 	void setFont(juce::Font newFont) { font = newFont; }
-
-	void setMagnitudeMax(float max) { }
 
 	void setArea(juce::Rectangle<float> area)
 	{

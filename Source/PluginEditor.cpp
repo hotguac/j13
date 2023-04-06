@@ -13,6 +13,7 @@ J13AudioProcessorEditor::J13AudioProcessorEditor(J13AudioProcessor& p)
 	: AudioProcessorEditor(&p)
 	, audioProcessor(p)
 
+
 {
 	// Set up the look and feel
 	jLookFreq.fillColour = juce::Colours::darkblue;
@@ -145,6 +146,13 @@ void J13AudioProcessorEditor::createLowControls()
 
 	lowGainSlider.textFromValueFunction = [](double value) { return String(value, 1); };
 	lowGainSlider.updateText();
+
+	lowShelf.addListener(this);
+	lowBump.addListener(this);
+	lowWide.addListener(this);
+
+	lowFreqSlider.addListener(this);
+	lowGainSlider.addListener(this);
 }
 
 void J13AudioProcessorEditor::createMidControls()
@@ -197,6 +205,13 @@ void J13AudioProcessorEditor::createMidControls()
 	highMidGainSlider.updateText();
 	lowMidQSlider.updateText();
 	highMidQSlider.updateText();
+
+	lowMidGainSlider.addListener(this);
+	highMidGainSlider.addListener(this);
+	lowMidQSlider.addListener(this);
+	highMidQSlider.addListener(this);
+	lowMidFreqSlider.addListener(this);
+	highMidFreqSlider.addListener(this);
 }
 
 void J13AudioProcessorEditor::createHighControls()
@@ -235,6 +250,13 @@ void J13AudioProcessorEditor::createHighControls()
 
 	highFreqSlider.textFromValueFunction = [](double value) { return juce::String(rint(value)); };
 	highFreqSlider.updateText();
+
+	highShelf.addListener(this);
+	highBump.addListener(this);
+	highWide.addListener(this);
+
+	highFreqSlider.addListener(this);
+	highGainSlider.addListener(this);
 }
 
 void J13AudioProcessorEditor::createOutputControls()
@@ -294,18 +316,24 @@ void J13AudioProcessorEditor::paint(juce::Graphics& g)
 	g.fillRect(midMiddleDivider);
 	g.fillRect(midTopDivider);
 
-	plotter.repaint(plotSection);
+	checkCoeffs();
+
+	if (needRepaint) {
+		needRepaint = false;
+		plotter.repaint(plotSection);
+		saveCoeffs();
+	}
 }
 
-juce::Rectangle<int> J13AudioProcessorEditor::shrinkArea(juce::Rectangle<int> area)
+juce::Rectangle<int> J13AudioProcessorEditor::shrinkArea(juce::Rectangle<int> areaOld)
 {
 	//
-	area.setWidth(area.getWidth() - 6);
-	area.setLeft(area.getX() + 3);
-	area.setHeight(area.getHeight() - 4);
-	area.setTop(area.getY() + 2);
+	areaOld.setWidth(areaOld.getWidth() - 6);
+	areaOld.setLeft(areaOld.getX() + 3);
+	areaOld.setHeight(areaOld.getHeight() - 4);
+	areaOld.setTop(areaOld.getY() + 2);
 
-	return area;
+	return areaOld;
 }
 
 void J13AudioProcessorEditor::layoutSections()
@@ -385,7 +413,7 @@ void J13AudioProcessorEditor::layoutLow()
 void J13AudioProcessorEditor::layoutMid()
 {
 	auto midWidth = midSection.getWidth();
-	auto midHeight = midSection.getHeight();
+	// auto midHeight = midSection.getHeight();
 
 	highMidFreqArea = midSection.removeFromTop(controlHeight);
 	highMidGainArea = highMidFreqArea.removeFromRight(midWidth / 2.0f);
@@ -572,5 +600,52 @@ void J13AudioProcessorEditor::timerCallback()
 		plotter.addCoeffs(audioProcessor.getCoeffs(1));
 		plotter.addCoeffs(audioProcessor.getCoeffs(2));
 		plotter.addCoeffs(audioProcessor.getCoeffs(3));
+		plotter.addCoeffs(audioProcessor.getCoeffs(4));
+
+		saveCoeffs();
+		needRepaint = true;
+	}
+}
+
+void J13AudioProcessorEditor::sliderValueChanged(Slider* slider) { needRepaint = true; }
+
+void J13AudioProcessorEditor::buttonClicked(Button*) { needRepaint = true; }
+
+void J13AudioProcessorEditor::saveCoeffs()
+{
+	// TODO: save a copy of the all coeff values to be compared later
+	if (audioProcessor.getCoeffs(0) == nullptr) {
+		return;
+	}
+
+	for (auto filterNum = 0; filterNum < 5; ++filterNum) {
+		auto filter = audioProcessor.getCoeffs(filterNum)->getRawCoefficients();
+		for (auto coeffNum = 0; coeffNum < 6; ++coeffNum) {
+			oldCoeff[filterNum][coeffNum] = filter[coeffNum];
+		}
+	}
+}
+
+void J13AudioProcessorEditor::checkCoeffs()
+{
+	// TODO: if any coeff values have changed then set the needrepaint
+	// since there are smoothers involved, use a window abs(old-new) > limit
+	auto limit = 0.0001f;
+
+	if (audioProcessor.getCoeffs(0) == nullptr) {
+		return;
+	}
+
+	for (auto filterNum = 0; filterNum < 5; ++filterNum) {
+		auto filter = audioProcessor.getCoeffs(filterNum)->getRawCoefficients();
+		for (auto coeffNum = 0; coeffNum < 6; ++coeffNum) {
+			float diff = oldCoeff[filterNum][coeffNum] - filter[coeffNum];
+			float adiff = abs(diff);
+			if (adiff > limit) {
+				needRepaint = true;
+				std::cout << "in repaint " << filterNum << " " << coeffNum << " ";
+				std::cout << adiff << std::endl;
+			}
+		}
 	}
 }

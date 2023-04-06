@@ -21,7 +21,7 @@ public:
 
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override
 	{
-		SaturationProcessor::samplesPerBlock = samplesPerBlock;
+		SaturationProcessor::saveSamplesPerBlock = samplesPerBlock;
 	}
 
 	void processBlock(juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
@@ -42,7 +42,7 @@ public:
 		for (int channel = 0; channel < totalNumInputChannels; ++channel) {
 			auto* channelData = buffer.getWritePointer(channel);
 
-			for (int sampleNum = 0; sampleNum < samplesPerBlock; ++sampleNum) {
+			for (int sampleNum = 0; sampleNum < saveSamplesPerBlock; ++sampleNum) {
 				float x = channelData[sampleNum];
 				channelData[sampleNum] = fn(x);
 			}
@@ -58,7 +58,7 @@ public:
 	SaturationType getSaturationType() { return activeType; }
 
 private:
-	int samplesPerBlock;
+	int saveSamplesPerBlock;
 	SaturationType activeType = clean;
 
 	float (*fn)(float);

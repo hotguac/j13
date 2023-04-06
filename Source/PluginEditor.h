@@ -17,7 +17,9 @@
 
 
 class J13AudioProcessorEditor : public juce::AudioProcessorEditor,
-								public juce::Timer
+								public juce::Timer,
+								public juce::Button::Listener,
+								public juce::Slider::Listener
 
 {
 public:
@@ -125,6 +127,7 @@ private:
 	std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> highWideAttachment;
 
 	// Frequency Response Plotter
+	bool needRepaint;
 	FreqPlotter plotter;
 
 	// Total available to work with
@@ -228,21 +231,30 @@ private:
 
 	enum JRadioGroups { input = 1, low = 2, high = 3, output = 4 };
 
+	void sliderValueChanged(Slider* slider);
+	void buttonClicked(Button*);
+
+	std::array<std::array<float, 6>, 5> oldCoeff;
+
+	void saveCoeffs();
+	void checkCoeffs();
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(J13AudioProcessorEditor)
 };
 
 
 /*
 TODO:
-- Hook up high pass filter
-- Hook up input and out section buttons
 - Build plot on a seperate canvas and paint to screen when finished 
 - Only update plot display when values change
 - make all buttons 'lit' when selected
 - Add brushed aluminum look to knobs
 - Add 3D look to knobs (top hat viewed directly), with darker edges and shiny middle
+- clang-tidy Source/*.cpp -- -IJuceLibraryCode -IJuceLibraryCode/modules
 
 Done-ish:
+- Hook up high pass filter
+- Hook up input and out section buttons
 - Draw dividers between low and high mid controls
 - Rotate high-mid controls to mirror low-mid
 - Lower high-mid frequency range to 1000 Hz

@@ -25,7 +25,7 @@ public:
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override;
 	void releaseResources() override { mainProcessor->releaseResources(); }
 	bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
-	void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+	void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&);
 
 	juce::AudioProcessorEditor* createEditor() override;
 	bool hasEditor() const override { return true; }
@@ -84,7 +84,7 @@ private:
 	void connectAudioNodes();
 	void connectMidiNodes();
 
-	double sampleRate;
+	double sampleRateX;
 
 	juce::SmoothedValue<float> smoothInGain { 1.0f };
 	juce::SmoothedValue<float> smoothDrive { 1.0f };
