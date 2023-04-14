@@ -245,14 +245,16 @@ private:
 
 /*
 TODO:
+- plotter doesn't plot filters until controls moused over/chaged/focus???
+- Add global bypass and bypasses for individual filters
 - Build plot on a seperate canvas and paint to screen when finished 
-- Only update plot display when values change
 - make all buttons 'lit' when selected
 - Add brushed aluminum look to knobs
 - Add 3D look to knobs (top hat viewed directly), with darker edges and shiny middle
 - clang-tidy Source/*.cpp -- -IJuceLibraryCode -IJuceLibraryCode/modules
 
 Done-ish:
+- Only update plot display when values change
 - Hook up high pass filter
 - Hook up input and out section buttons
 - Draw dividers between low and high mid controls

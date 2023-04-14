@@ -611,9 +611,9 @@ void J13AudioProcessorEditor::sliderValueChanged(Slider* slider) { needRepaint =
 
 void J13AudioProcessorEditor::buttonClicked(Button*) { needRepaint = true; }
 
+// Save a copy of the all coeff values to be compared later
 void J13AudioProcessorEditor::saveCoeffs()
 {
-	// TODO: save a copy of the all coeff values to be compared later
 	if (audioProcessor.getCoeffs(0) == nullptr) {
 		return;
 	}
@@ -626,10 +626,10 @@ void J13AudioProcessorEditor::saveCoeffs()
 	}
 }
 
+// If any coeff values have changed then set the needrepaint
+// since there are smoothers involved, use a window abs(old-new) > limit
 void J13AudioProcessorEditor::checkCoeffs()
 {
-	// TODO: if any coeff values have changed then set the needrepaint
-	// since there are smoothers involved, use a window abs(old-new) > limit
 	auto limit = 0.0001f;
 
 	if (audioProcessor.getCoeffs(0) == nullptr) {
@@ -643,8 +643,6 @@ void J13AudioProcessorEditor::checkCoeffs()
 			float adiff = abs(diff);
 			if (adiff > limit) {
 				needRepaint = true;
-				std::cout << "in repaint " << filterNum << " " << coeffNum << " ";
-				std::cout << adiff << std::endl;
 			}
 		}
 	}

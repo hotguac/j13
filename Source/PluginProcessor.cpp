@@ -63,6 +63,26 @@ void J13AudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 	// as intermediaries to make it easy to save and load complex data.
 	auto state = apvts.copyState();
 	std::unique_ptr<juce::XmlElement> xml(state.createXml());
+	// std::cout << "state = " << xml.get()->toString() << std::endl;
+
+	// use this to remove obsolete parameters
+	// auto ele = xml->getChildByAttribute("id", "LOWRESO");
+	// if (ele == nullptr) {
+	// 	std::cout << "got nullptr" << std::endl;
+	// } else {
+	// 	xml->removeChildElement(ele, true);
+	// }
+
+	//std::cout << xml.get()->toString() << std::endl;
+	// for (auto* element : xml->getChildIterator()) {
+	// 	std::cout << element->toString() << " ";
+	// 	std::cout << element->getAttributeName(0) << " ";
+	// 	std::cout << element->getAttributeName(1) << std::endl;
+	// }
+
+	//TODO: normalize all float parameters to some set number of digits so
+	// we can use a stashed string to see if any paramets have changed and
+	// a repaint of the plot is needed.
 	copyXmlToBinary(*xml, destData);
 }
 
