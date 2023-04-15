@@ -319,8 +319,8 @@ void J13AudioProcessorEditor::paint(juce::Graphics& g)
 	checkCoeffs();
 
 	if (needRepaint) {
-		needRepaint = false;
 		plotter.repaint(plotSection);
+		needRepaint = false;
 		saveCoeffs();
 	}
 }
@@ -604,6 +604,7 @@ void J13AudioProcessorEditor::timerCallback()
 
 		saveCoeffs();
 		needRepaint = true;
+		plotter.repaint(plotSection);
 	}
 }
 
